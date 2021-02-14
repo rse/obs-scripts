@@ -16,6 +16,9 @@ The individual scripts are:
   (template), by creating a target scene (clone) and copying all
   corresponding sources, including their filters, transforms, etc.
 
+- [refresh-browser-sources.lua](refresh-browser-sources.lua):<br/>
+  Refresh all <i>Browser Source</i> sources.
+
 Installation
 ------------
 

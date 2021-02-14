@@ -2,7 +2,7 @@
 **
 **  refresh-browser-sources.lua -- OBS Studio Lua Script for Refreshing Browser Sources
 **  Copyright (c) 2021 Dr. Ralf S. Engelschall <rse@engelschall.com>
-**  Distributed under GPL license <https://spdx.org/licenses/GPL-2.0.html>
+**  Distributed under MIT license <https://spdx.org/licenses/MIT.html>
 **
 --]]
 
@@ -22,7 +22,7 @@ function script_description ()
         Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
         href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
         Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/GPL-2.0.html">GPL license</a>
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
 
         <p>
         <b>Refresh all <i>Browser Source</i> sources.</b>

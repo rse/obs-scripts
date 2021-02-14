@@ -9,6 +9,13 @@ This is a small collection of [Lua](http://www.lua.org/) scripts
 for automating certain tasks in the video/audio stream
 mixing software [OBS Studio](https://obsproject.com/).
 
+The individual scripts are:
+
+- [clone-template-scene.lua](clone-template-scene.lua):<br/>
+  Clone an entire source scene
+  (template), by creating a target scene (clone) and copying all
+  corresponding sources, including their filters, transforms, etc.
+
 Installation
 ------------
 

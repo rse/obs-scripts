@@ -65,7 +65,7 @@ function script_properties ()
     --  create new properties
     local props = obs.obs_properties_create()
     obs.obs_properties_add_button(props, "refresh_browsers",
-        "Refresh Browser Sources", refreshBrowsers)
+        "Refresh All Browser Sources", refreshBrowsers)
     return props
 end
 

@@ -219,6 +219,18 @@ function doClone ()
         --  add source to scene
         local targetItem = obs.obs_scene_add(targetScene, targetSource)
 
+        --  copy source private settings
+        local privSettings = obs.obs_source_get_private_settings(sourceSrc)
+        local hidden = obs.obs_data_get_bool(privSettings, "mixer_hidden")
+        local volumeLocked = obs.obs_data_get_bool(privSettings, "volume_locked")
+        local showInMultiview = obs.obs_data_get_bool(privSettings, "show_in_multiview")
+        obs.obs_data_release(privSettings)
+        privSettings = obs.obs_source_get_private_settings(targetSource)
+        obs.obs_data_set_bool(privSettings, "mixer_hidden", hidden)
+        obs.obs_data_set_bool(privSettings, "volume_locked", volumeLocked)
+        obs.obs_data_set_bool(privSettings, "show_in_multiview", showInMultiview)
+        obs.obs_data_release(privSettings)
+
         --  copy source transforms
         local transform = obs.obs_transform_info()
         obs.obs_sceneitem_get_info(sourceItem, transform)
@@ -271,14 +283,6 @@ function doClone ()
         --  copy source deinterlace field order
         local fieldOrder = obs.obs_source_get_deinterlace_field_order(sourceSrc)
         obs.obs_source_set_deinterlace_field_order(targetSource, fieldOrder)
-
-        --  copy source audio mixer hidden state
-        local privSettings = obs.obs_source_get_private_settings(sourceSrc)
-        local hidden = obs.obs_data_get_bool(privSettings, "mixer_hidden")
-        obs.obs_data_release(privSettings)
-        privSettings = obs.obs_source_get_private_settings(targetSource)
-        obs.obs_data_set_bool(privSettings, "mixer_hidden", hidden)
-        obs.obs_data_release(privSettings)
 
         --  copy source flags
         local flags = obs.obs_source_get_flags(sourceSrc)

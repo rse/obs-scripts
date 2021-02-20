@@ -240,9 +240,45 @@ function doClone ()
         local muted = obs.obs_source_muted(sourceSrc)
         obs.obs_source_set_muted(targetSource, muted)
 
+        --  copy source push-to-mute state
+        local pushToMute = obs.obs_source_push_to_mute_enabled(sourceSrc)
+        obs.obs_source_enable_push_to_mute(targetSource, pushToMute)
+
+        --  copy source push-to-mute delay
+        local pushToMuteDelay = obs.obs_source_get_push_to_mute_delay(sourceSrc)
+        obs.obs_source_set_push_to_mute_delay(targetSource, pushToMuteDelay)
+
+        --  copy source push-to-talk state
+        local pushToTalk = obs.obs_source_push_to_talk_enabled(sourceSrc)
+        obs.obs_source_enable_push_to_talk(targetSource, pushToTalk)
+
+        --  copy source push-to-talk delay
+        local pushToTalkDelay = obs.obs_source_get_push_to_talk_delay(sourceSrc)
+        obs.obs_source_set_push_to_talk_delay(targetSource, pushToTalkDelay)
+
+        --  copy source sync offset
+        local offset = obs.obs_source_get_sync_offset(sourceSrc)
+        obs.obs_source_set_sync_offset(targetSource, offset)
+
         --  copy source mixer state
         local mixers = obs.obs_source_get_audio_mixers(sourceSrc)
         obs.obs_source_set_audio_mixers(targetSource, mixers)
+
+        --  copy source deinterlace mode
+        local mode = obs.obs_source_get_deinterlace_mode(sourceSrc)
+        obs.obs_source_set_deinterlace_mode(targetSource, mode)
+
+        --  copy source deinterlace field order
+        local fieldOrder = obs.obs_source_get_deinterlace_field_order(sourceSrc)
+        obs.obs_source_set_deinterlace_field_order(targetSource, fieldOrder)
+
+        --  copy source audio mixer hidden state
+        local privSettings = obs.obs_source_get_private_settings(sourceSrc)
+        local hidden = obs.obs_data_get_bool(privSettings, "mixer_hidden")
+        obs.obs_data_release(privSettings)
+        privSettings = obs.obs_source_get_private_settings(targetSource)
+        obs.obs_data_set_bool(privSettings, "mixer_hidden", hidden)
+        obs.obs_data_release(privSettings)
 
         --  copy source flags
         local flags = obs.obs_source_get_flags(sourceSrc)

@@ -224,6 +224,11 @@ function doClone ()
         obs.obs_sceneitem_get_info(sourceItem, transform)
         obs.obs_sceneitem_set_info(targetItem, transform)
 
+        --  copy source crop
+        local crop = obs.obs_sceneitem_crop()
+        obs.obs_sceneitem_get_crop(sourceItem, crop)
+        obs.obs_sceneitem_set_crop(targetItem, crop)
+
         --  copy source filters
         obs.obs_source_copy_filters(targetSource, sourceSrc)
 

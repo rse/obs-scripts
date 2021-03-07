@@ -79,7 +79,7 @@ function script_properties ()
     --  create source scene list
     ctx.propsDefSrc = obs.obs_properties_add_list(ctx.propsDef,
         "sourceScene", "Source Scene (Template):",
-        obs.OBS_COMBO_TYPE_LIST, obslua.OBS_COMBO_FORMAT_STRING)
+        obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
     updateSourceScenes()
 
     --  create target scene field

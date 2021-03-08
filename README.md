@@ -5,9 +5,10 @@ OBS Studio Lua Scripts
 About
 -----
 
-This is a small collection of [Lua](http://www.lua.org/) scripts
-for automating certain tasks in the video/audio stream
-mixing software [OBS Studio](https://obsproject.com/).
+This is a small collection of [Lua](http://www.lua.org/)
+scripts for automating certain tasks and extending the
+functionality in the video/audio stream mixing software [OBS
+Studio](https://obsproject.com/).
 
 The individual scripts are:
 

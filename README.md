@@ -19,6 +19,11 @@ The individual scripts are:
 - [refresh-browser-sources.lua](refresh-browser-sources.lua):<br/>
   Refresh all <i>Browser Source</i> sources.
 
+- [keyboard-event-filter.lua](keyboard-event-filter.lua):<br/>
+  Define a Keyboard Event filter for sources. This is intended
+  to map OBS Studio global hotkeys onto keyboard events for
+  Browser Source sources.
+
 Installation
 ------------
 

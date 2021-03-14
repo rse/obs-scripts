@@ -69,6 +69,7 @@ function updateSourceScenes ()
         obs.obs_property_list_add_string(ctx.propsDefSrc, n, n)
         ctx.propsValSrc = n
     end
+    obs.source_list_release(scenes)
 end
 
 --  script hook: define UI properties
@@ -159,11 +160,11 @@ local function findSceneByName (name)
     for i, scene in ipairs(scenes) do
         local n = obs.obs_source_get_name(scene)
         if n == name then
-            -- obs.obs_frontend_source_list_free(scenes)
+            obs.source_list_release(scenes)
             return scene
         end
     end
-    -- obs.obs_frontend_source_list_free(scenes)
+    obs.source_list_release(scenes)
     return nil
 end
 
@@ -306,6 +307,7 @@ function doClone ()
     end
 
     --  release resources
+    obs.sceneitem_list_release(sourceItems)
     obs.obs_scene_release(targetScene)
 
     --  final hint

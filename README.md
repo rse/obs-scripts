@@ -13,23 +13,30 @@ Studio](https://obsproject.com/).
 The individual scripts are:
 
 - [clone-template-scene.lua](clone-template-scene.lua):<br/>
-  Clone an entire source scene
-  (template), by creating a target scene (clone) and copying all
-  corresponding sources, including their filters, transforms, etc.
+  Clone an entire source scene (template), by creating a target scene
+  (clone) and copying all corresponding sources, including their
+  filters, transforms, etc. This is usually used for creating scenes,
+  based on the same set of template scenes, during event preparation.
 
 - [refresh-browser-sources.lua](refresh-browser-sources.lua):<br/>
-  Refresh all <i>Browser Source</i> sources.
+  Refresh all <i>Browser Source</i> sources. This is usally used to
+  refresh Browser Source based Head-Up-Display (HUD), Lower Thirds or
+  Banner widgets during event preparation.
 
 - [keyboard-event-filter.lua](keyboard-event-filter.lua):<br/>
-  Define a Keyboard Event filter for sources. This is intended
-  to map OBS Studio global hotkeys onto keyboard events for
-  Browser Source sources.
+  Define a Keyboard Event filter for sources. This is intended to
+  map OBS Studio global hotkeys onto keyboard events for Browser
+  Source sources. This is usually used to map global hotkeys (or even
+  attached StreamDeck keys) onto keystrokes for Browser Source based
+  Head-Up-Display (HUD), Lower Thirds or Banner widgets during event
+  production.
 
 - [production-information.lua](production-information.lua):<br/>
-  Updates Text/GDI+ sources with the current Preview and Program
-  scene information, the current wallclock time and the current
-  on-air duration time in order to broadcast this information during
-  production to the involved people.
+  Updates Text/GDI+ sources with the current Preview and Program scene
+  information, the current wallclock time and the current on-air
+  duration time in order to broadcast this information during production
+  to the involved people. This is usually used for broadcasting central
+  information during event production.
 
 Installation
 ------------

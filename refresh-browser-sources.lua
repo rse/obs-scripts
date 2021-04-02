@@ -69,7 +69,7 @@ function script_properties ()
     return props
 end
 
--- script hook: on script load
+--  script hook: on script load
 function script_load (settings)
     ctx.hotkey = obs.obs_hotkey_register_frontend(
         "refresh_browsers.trigger", "Refresh all browsers",
@@ -86,7 +86,7 @@ function script_load (settings)
     obs.obs_data_array_release(hotkey_save_array)
 end
 
--- script hook: on script save
+--  script hook: on script save
 function script_save (settings)
     local hotkey_save_array = obs.obs_hotkey_save(ctx.hotkey)
     obs.obs_data_set_array(settings,

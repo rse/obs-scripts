@@ -14,10 +14,12 @@ local ctx = {
     propsDef           = nil,  -- property definition
     propsDefSrcPreview = nil,  -- property definition (source scene of preview)
     propsDefSrcProgram = nil,  -- property definition (source scene of program)
+    propsDefSrcTime    = nil,  -- property definition (source scene of time)
     propsSet           = nil,  -- property settings (model)
     propsVal           = {},   -- property values
     propsValSrcPreview = nil,  -- property values (source scene of preview)
     propsValSrcProgram = nil,  -- property values (source scene of program)
+    propsValSrcTime    = nil,  -- property values (source scene of time)
 }
 
 --  script hook: description displayed on script window
@@ -35,14 +37,14 @@ function script_description ()
 
         <p>
         This is a small OBS Studio script for rendering the current
-        scene names visible in the Preview and Program channels into
-        pre-defined corresponding Text/GDI+ text sources. These sources
-        are usually part of an (invisible) scene which is either part
-        of a locally shown OBS Studio Multiview or Projector or is
-        broacasted via an attached "Dedicated NDI Output" filter to
-        foreign monitors. In all cases, the intention is to globally
-        show the current scene information to all involved people during
-        a production session.
+        scene names visible in the Preview and Program channels and
+        the current wall-clock time into pre-defined corresponding
+        Text/GDI+ text sources. These text sources are usually part of
+        an (invisible) scene which is either part of a locally shown OBS
+        Studio Multiview or Projector or is broacasted via an attached
+        "Dedicated NDI Output" filter to foreign monitors. In all
+        cases, the intention is to globally show the current production
+        information to all involved people during a production session.
     ]]
 end
 
@@ -54,8 +56,12 @@ function updateTextSources ()
     if ctx.propsDefSrcProgram ~= nil then
         obs.obs_property_list_clear(ctx.propsDefSrcProgram)
     end
+    if ctx.propsDefSrcTime ~= nil then
+        obs.obs_property_list_clear(ctx.propsDefSrcTime)
+    end
     ctx.propsValSrcPreview = nil
     ctx.propsValSrcProgram = nil
+    ctx.propsValSrcTime    = nil
 	local sources = obs.obs_enum_sources()
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -73,6 +79,12 @@ function updateTextSources ()
                 end
                 if ctx.propsValSrcProgram == nil then
                     ctx.propsValSrcProgram = name
+                end
+                if ctx.propsDefSrcTime ~= nil then
+                    obs.obs_property_list_add_string(ctx.propsDefSrcTime, name, name)
+                end
+                if ctx.propsValSrcTime == nil then
+                    ctx.propsValSrcTime = name
                 end
 			end
 		end
@@ -92,6 +104,9 @@ function script_properties ()
     ctx.propsDefSrcProgram = obs.obs_properties_add_list(props,
         "textSourceNameProgram", "Program-Name Text-Source",
         obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+    ctx.propsDefSrcTime = obs.obs_properties_add_list(props,
+        "textSourceNameTime", "Wall-Clock Time Text-Source",
+        obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
     updateTextSources()
 
     return props
@@ -105,6 +120,7 @@ function script_defaults (settings)
     --  provide default values
     obs.obs_data_set_default_string(settings, "textSourceNamePreview", ctx.propsValSrcPreview)
     obs.obs_data_set_default_string(settings, "textSourceNameProgram", ctx.propsValSrcProgram)
+    obs.obs_data_set_default_string(settings, "textSourceNameTime",    ctx.propsValSrcTime)
 end
 
 --  script hook: update state from UI properties
@@ -115,51 +131,64 @@ function script_update (settings)
     --  fetch property values
 	ctx.propsVal.textSourceNamePreview = obs.obs_data_get_string(settings, "textSourceNamePreview")
 	ctx.propsVal.textSourceNameProgram = obs.obs_data_get_string(settings, "textSourceNameProgram")
+	ctx.propsVal.textSourceNameTime    = obs.obs_data_get_string(settings, "textSourceNameTime")
 end
 
---  update targets
-function update_targets ()
-    --  determine current scene in preview
+--  update a single target text source
+function updateTextSource (name, text)
+    local source = obs.obs_get_source_by_name(name)
+    if source ~= nil then
+        obs.script_log(obs.LOG_INFO, "update: change Text source \"" .. name .. "\" to \"" .. text .. "\"")
+        local settings = obs.obs_source_get_settings(source)
+        obs.obs_data_set_string(settings, "text", text)
+        obs.obs_source_update(source, settings)
+        obs.obs_data_release(settings)
+        obs.obs_source_release(source)
+    end
+end
+
+--  update targets for scenes
+function updateTextSourcesScene ()
+    --  determine current scene in preview and update text source
 	local previewSceneSource = obs.obs_frontend_get_current_preview_scene()
 	local previewSceneName   = obs.obs_source_get_name(previewSceneSource)
+    updateTextSource(ctx.propsVal.textSourceNamePreview, previewSceneName)
 	obs.obs_source_release(previewSceneSource)
-    obs.script_log(obs.LOG_INFO, "update: current Preview scene name: \"" .. previewSceneName .. "\"")
 
-    --  determine current scene in program
+    --  determine current scene in program and update text source
 	local programSceneSource = obs.obs_frontend_get_current_scene()
 	local programSceneName   = obs.obs_source_get_name(programSceneSource)
-	obs.obs_source_release(programSceneSource)
-    obs.script_log(obs.LOG_INFO, "update: current Program scene name: \"" .. previewSceneName .. "\"")
-
-    --  update a single target text source
-    function updateTextSource (name, text)
-        local source = obs.obs_get_source_by_name(name)
-        if source ~= nil then
-            obs.script_log(obs.LOG_INFO, "update: change Text source: \"" .. name .. "\"")
-            local settings = obs.obs_source_get_settings(source)
-            obs.obs_data_set_string(settings, "text", text)
-            obs.obs_source_update(source, settings)
-            obs.obs_data_release(settings)
-            obs.obs_source_release(source)
-        end
-    end
-
-    --  update target text sources
-    updateTextSource(ctx.propsVal.textSourceNamePreview, previewSceneName)
     updateTextSource(ctx.propsVal.textSourceNameProgram, programSceneName)
+	obs.obs_source_release(programSceneSource)
+end
+
+--  update targets for time
+function updateTextSourcesTime ()
+	local text = os.date("%H:%M:%S")
+    updateTextSource(ctx.propsVal.textSourceNameTime, text)
 end
 
 --  script hook: on script load
 function script_load (settings)
+    --  hook into the UI events
     obs.obs_frontend_add_event_callback(function (event)
         if event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
             updateTextSources()
         elseif event == obs.OBS_FRONTEND_EVENT_SCENE_CHANGED then
-            update_targets()
+            updateTextSourcesScene()
         elseif event == obs.OBS_FRONTEND_EVENT_PREVIEW_SCENE_CHANGED then
-            update_targets()
+            updateTextSourcesScene()
         end
         return true
     end)
+
+    --  start 1s timer
+    obs.timer_add(updateTextSourcesTime, 1000)
+end
+
+--  script hook: on script unload
+function script_unload ()
+    --  stop 1s timer
+    obs.timer_remove(updateTextSourcesTime)
 end
 

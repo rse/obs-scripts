@@ -25,6 +25,11 @@ The individual scripts are:
   to map OBS Studio global hotkeys onto keyboard events for
   Browser Source sources.
 
+- [current-scene-information.lua](current-scene-information.lua):<br/>
+  Updates Text/GDI+ sources with the current Preview and Program
+  scene information in order to broadcast this information during
+  production.
+
 Installation
 ------------
 

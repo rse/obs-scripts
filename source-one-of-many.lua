@@ -156,10 +156,11 @@ function cb_item_visible (calldata)
     end
     obs.sceneitem_list_release(sceneitems)
 
-    --  if a source was made non-visible and we have not found any other
-    --  still visible source, keep it visible (but delay the toggling
-    --  as we are just flagged to be non-visible and are really made
-    --  non-visible after this callback)
+    --  if a source is requested to be made non-visible and we have not
+    --  found any other still visible source in the scene/group, make
+    --  it visible again (but delay the toggling as the source is still
+    --  just flagged to be made non-visible and is actually just to be
+    --  made non-visible after this callback!)
     if not visible and not found_other_visible then
         script_log("INFO", string.format("forcing source \"%s\" to be visible again afterwards (by us)", sourceName))
         table.insert(ctx.set_visible, { item = item, delay = 10, visible = true })

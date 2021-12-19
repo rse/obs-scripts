@@ -140,16 +140,16 @@ function cb_item_visible (calldata)
     local found_other_visible = false
     for i, sceneitem in ipairs(sceneitems) do
         local itemsource = obs.obs_sceneitem_get_source(sceneitem)
-        local isn = obs.obs_source_get_name(itemsource)
-        if visible and sourceName ~= isn then
-            --  make all other (still visible) scenes invisible
-            if obs.obs_sceneitem_visible(sceneitem) then
-                script_log("INFO", string.format("forcing source \"%s\" to be non-visible", isn))
+        local name = obs.obs_source_get_name(itemsource)
+
+        --  for another source which is visible...
+        if sourceName ~= name and obs.obs_sceneitem_visible(sceneitem) then
+            if visible then
+                --  ...make it non-visible
+                script_log("INFO", string.format("forcing source \"%s\" to be non-visible", name))
                 obs.obs_sceneitem_set_visible(sceneitem, false)
-            end
-        elseif not visible and sourceName ~= isn then
-            --  remember whether there is still another visible source
-            if obs.obs_sceneitem_visible(sceneitem) then
+            else
+                --  ...or remember it is visible
                 found_other_visible = true
             end
         end

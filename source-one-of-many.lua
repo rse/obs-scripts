@@ -43,8 +43,6 @@ end
 
 --  script hook: define UI properties
 function script_properties ()
-    script_log("INFO", "hook: script_properties")
-
     --  create new properties
     local props = obs.obs_properties_create()
     obs.obs_properties_add_editable_list(props, "sources", "Scenes/Groups",
@@ -54,8 +52,6 @@ end
 
 --  script hook: property values were updated
 function script_update(settings)
-    script_log("INFO", "hook: script_update")
-
     --  (re)connect "item_visible" handler on all configured sources
     local sourceNames = obs.obs_data_get_array(settings, "sources")
     local count = obs.obs_data_array_count(sourceNames)
@@ -75,8 +71,6 @@ end
 
 --  script hook: on script load
 function script_load (settings)
-    script_log("INFO", "hook: script_load")
-
     --  remember settings globally
     ctx.gs = settings
 
@@ -101,8 +95,6 @@ end
 
 --  callback of "source_load" handler (called when a source is being loaded)
 function cb_source_load (calldata)
-    script_log("INFO", "hook: source_load")
-
     --  skip operation of no global settings are available
     if ctx.gs == nil then
         return
@@ -136,7 +128,11 @@ function cb_item_visible (calldata)
     --  determine changed scene/source name
     local source = obs.obs_sceneitem_get_source(item)
     local sourceName = obs.obs_source_get_name(source)
-    script_log("INFO", string.format("hook: item_visible: source=%s visible=%s", sourceName, tostring(visible)))
+    if visible then
+        script_log("INFO", string.format("requested source \"%s\" to be made visible", sourceName))
+    else
+        script_log("INFO", string.format("requested source \"%s\" to be made non-visible", sourceName))
+    end
 
     --  iterate over all scenes of scene/source
     local scene = obs.obs_sceneitem_get_scene(item)
@@ -148,7 +144,7 @@ function cb_item_visible (calldata)
         if visible and sourceName ~= isn then
             --  make all other (still visible) scenes invisible
             if obs.obs_sceneitem_visible(sceneitem) then
-                script_log("INFO", string.format("making source \"%s\" non-visible", isn))
+                script_log("INFO", string.format("forcing source \"%s\" to be non-visible", isn))
                 obs.obs_sceneitem_set_visible(sceneitem, false)
             end
         elseif not visible and sourceName ~= isn then
@@ -165,7 +161,7 @@ function cb_item_visible (calldata)
     --  as we are just flagged to be non-visible and are really made
     --  non-visible after this callback)
     if not visible and not found_other_visible then
-        script_log("INFO", string.format("forcing source \"%s\" to be made visible again", sourceName))
+        script_log("INFO", string.format("forcing source \"%s\" to be visible again (afterwards)", sourceName))
         table.insert(ctx.set_visible, { item = item, delay = 10, visible = true })
     end
 end

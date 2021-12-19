@@ -129,9 +129,9 @@ function cb_item_visible (calldata)
     local source = obs.obs_sceneitem_get_source(item)
     local sourceName = obs.obs_source_get_name(source)
     if visible then
-        script_log("INFO", string.format("requested source \"%s\" to be made visible", sourceName))
+        script_log("INFO", string.format("notice: source \"%s\" will be made visible (by OBS)", sourceName))
     else
-        script_log("INFO", string.format("requested source \"%s\" to be made non-visible", sourceName))
+        script_log("INFO", string.format("notice: source \"%s\" will be made non-visible (by OBS)", sourceName))
     end
 
     --  iterate over all scenes of scene/source
@@ -146,7 +146,7 @@ function cb_item_visible (calldata)
         if sourceName ~= name and obs.obs_sceneitem_visible(sceneitem) then
             if visible then
                 --  ...make it non-visible
-                script_log("INFO", string.format("forcing source \"%s\" to be non-visible", name))
+                script_log("INFO", string.format("forcing source \"%s\" to be non-visible (by us)", name))
                 obs.obs_sceneitem_set_visible(sceneitem, false)
             else
                 --  ...or remember it is visible
@@ -161,7 +161,7 @@ function cb_item_visible (calldata)
     --  as we are just flagged to be non-visible and are really made
     --  non-visible after this callback)
     if not visible and not found_other_visible then
-        script_log("INFO", string.format("forcing source \"%s\" to be visible again (afterwards)", sourceName))
+        script_log("INFO", string.format("forcing source \"%s\" to be visible again afterwards (by us)", sourceName))
         table.insert(ctx.set_visible, { item = item, delay = 10, visible = true })
     end
 end

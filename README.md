@@ -38,6 +38,14 @@ The individual scripts are:
   to the involved people. This is usually used for broadcasting central
   information during event production.
 
+- [source-one-of-many.lua](source-one-of-many.lua):<br/>
+  Toggle between one of many sources visible in a scene/group. If
+  a source is made visible in a scene/group, all other sources are
+  automatically made non-visible. The currently already visible source
+  is made visible immediately again, if it is accidentally requested
+  to be made non-visible. So, at each time, only one source is visible
+  within the scene/group.
+
 Installation
 ------------
 

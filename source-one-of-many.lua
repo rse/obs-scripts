@@ -7,12 +7,12 @@
 --]]
 
 --  global OBS API
-local obs     = obslua
+local obs = obslua
 
 --  global context information
 local ctx = {
-    gs              = nil,
-    set_visible     = {}
+    settings = nil,
+    set_visible = {}
 }
 
 --  send a trace message to the script log
@@ -72,7 +72,7 @@ end
 --  script hook: on script load
 function script_load (settings)
     --  remember settings globally
-    ctx.gs = settings
+    ctx.settings = settings
 
     --  hook into "source_load" handler
     local sh = obs.obs_get_signal_handler()
@@ -96,7 +96,7 @@ end
 --  callback of "source_load" handler (called when a source is being loaded)
 function cb_source_load (calldata)
     --  skip operation of no global settings are available
-    if ctx.gs == nil then
+    if ctx.settings == nil then
         return
     end
 
@@ -105,7 +105,7 @@ function cb_source_load (calldata)
     local sn = obs.obs_source_get_name(source)
 
     --  (re)connect "item_visible" handler if one of our configured sources is loaded
-    local sourceNames = obs.obs_data_get_array(ctx.gs, "sources")
+    local sourceNames = obs.obs_data_get_array(ctx.settings, "sources")
     local count = obs.obs_data_array_count(sourceNames)
     for i = 0, count do
         local item = obs.obs_data_array_item(sourceNames, i)

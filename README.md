@@ -44,7 +44,8 @@ The individual scripts are:
   automatically made non-visible. The currently already visible source
   is made visible immediately again, if it is accidentally requested
   to be made non-visible. So, at each time, only one source is visible
-  within the scene/group.
+  within the scene/group. This is usually used for switching between
+  multiple cameras within a dedicated scene/group of cameras.
 
 Installation
 ------------

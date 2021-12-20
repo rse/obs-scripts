@@ -51,11 +51,11 @@ function script_properties ()
 end
 
 --  script hook: property values were updated
-function script_update(settings)
+function script_update (settings)
     --  (re)connect "item_visible" handler on all configured sources
     local sourceNames = obs.obs_data_get_array(settings, "sources")
-    local count = obs.obs_data_array_count(sourceNames)
-    for i = 0, count do
+    local sourceNamesCount = obs.obs_data_array_count(sourceNames)
+    for i = 0, sourceNamesCount do
         local item = obs.obs_data_array_item(sourceNames, i)
         local sourceName = obs.obs_data_get_string(item, "value")
         local source = obs.obs_get_source_by_name(sourceName)
@@ -83,7 +83,7 @@ end
 function script_tick (seconds)
     local i = 1
     while i <= #ctx.set_visible do
-        ctx.set_visible[i].delay = ctx.set_visible[i].delay - seconds * 1000
+        ctx.set_visible[i].delay = ctx.set_visible[i].delay - (seconds * 1000)
         if ctx.set_visible[i].delay <= 0 then
             obs.obs_sceneitem_set_visible(ctx.set_visible[i].item, ctx.set_visible[i].visible)
             table.remove(ctx.set_visible, i)
@@ -106,8 +106,8 @@ function cb_source_load (calldata)
 
     --  (re)connect "item_visible" handler if one of our configured sources is loaded
     local sourceNames = obs.obs_data_get_array(ctx.settings, "sources")
-    local count = obs.obs_data_array_count(sourceNames)
-    for i = 0, count do
+    local sourceNamesCount = obs.obs_data_array_count(sourceNames)
+    for i = 0, sourceNamesCount do
         local item = obs.obs_data_array_item(sourceNames, i)
         local sourceName = obs.obs_data_get_string(item, "value")
         if sn == sourceName then

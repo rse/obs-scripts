@@ -47,6 +47,11 @@ The individual scripts are:
   within the scene/group. This is usually used for switching between
   multiple cameras within a dedicated scene/group of cameras.
 
+- [auto-execute-commands.lua](auto-execute-commands.lua):<br/>
+  Automatically execute commands when OBS Studio starts up and/or
+  shuts down. This is usually used for initializing cameras or
+  performing similar external start/stop tasks.
+
 Installation
 ------------
 

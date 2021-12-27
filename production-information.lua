@@ -6,33 +6,6 @@
 **
 --]]
 
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Production Information</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Render production information into corresponding text sources.</b>
-
-        <p>
-        This is a small OBS Studio script for rendering the current
-        scene name visible in the Preview and Program channels, the
-        current wallclock time and the current on-air duration time into
-        pre-defined corresponding Text/GDI+ text sources. These text
-        sources are usually part of a (hidden) scene which is either
-        just part of a locally shown OBS Studio Multiview or Projector
-        or is broadcasted via an attached "Dedicated NDI Output" filter
-        to foreign monitors. In all cases, the intention is to globally
-        show current production information to the involved people
-        during a production session.
-    ]]
-end
-
 --  global OBS API
 local obs = obslua
 
@@ -144,6 +117,84 @@ local function durationReset ()
     ctx.timerPausedSecs = 0
 end
 
+--  update a single target text source
+local function updateTextSource (name, text)
+    local source = obs.obs_get_source_by_name(name)
+    if source ~= nil then
+        local settings = obs.obs_source_get_settings(source)
+        obs.obs_data_set_string(settings, "text", text)
+        obs.obs_source_update(source, settings)
+        obs.obs_data_release(settings)
+        obs.obs_source_release(source)
+    end
+end
+
+--  update targets for scenes
+local function updateTextSourcesScene ()
+    --  determine current scene in preview and update text source
+	local previewSceneSource = obs.obs_frontend_get_current_preview_scene()
+	local previewSceneName   = obs.obs_source_get_name(previewSceneSource)
+    updateTextSource(ctx.propsVal.textSourceNamePreview, previewSceneName)
+	obs.obs_source_release(previewSceneSource)
+
+    --  determine current scene in program and update text source
+	local programSceneSource = obs.obs_frontend_get_current_scene()
+	local programSceneName   = obs.obs_source_get_name(programSceneSource)
+    updateTextSource(ctx.propsVal.textSourceNameProgram, programSceneName)
+	obs.obs_source_release(programSceneSource)
+end
+
+--  update targets for time
+local function updateTextSourcesTime ()
+    --  determine current wallclock-time and update text source
+	local time = os.date("%H:%M:%S")
+    updateTextSource(ctx.propsVal.textSourceNameTime, time)
+
+    --  determine current duration-time and update text source
+    if ctx.timerPaused then
+        ctx.timerPausedSecs = ctx.timerPausedSecs + 1
+    end
+    local timerEnd = obs.os_gettime_ns()
+    local duration = math.floor((timerEnd - ctx.timerStart) / (1000 * 1000 * 1000)) - ctx.timerPausedSecs
+    local hour = math.floor(duration / (60 * 60))
+    duration = math.fmod(duration, 60 * 60)
+    local min = math.floor(duration / 60)
+    duration = math.fmod(duration, 60)
+    local sec = duration
+    local text = string.format("%02d:%02d:%02d", hour, min, sec)
+    if ctx.timerPaused then
+        text = text .. " *"
+    end
+    updateTextSource(ctx.propsVal.textSourceNameDuration, text)
+end
+
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Production Information</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Render production information into corresponding text sources.</b>
+
+        <p>
+        This is a small OBS Studio script for rendering the current
+        scene name visible in the Preview and Program channels, the
+        current wallclock time and the current on-air duration time into
+        pre-defined corresponding Text/GDI+ text sources. These text
+        sources are usually part of a (hidden) scene which is either
+        just part of a locally shown OBS Studio Multiview or Projector
+        or is broadcasted via an attached "Dedicated NDI Output" filter
+        to foreign monitors. In all cases, the intention is to globally
+        show current production information to the involved people
+        during a production session.
+    ]]
+end
+
 --  script hook: define UI properties
 function script_properties ()
     --  create new properties
@@ -199,57 +250,6 @@ function script_update (settings)
 	ctx.propsVal.textSourceNameProgram  = obs.obs_data_get_string(settings, "textSourceNameProgram")
 	ctx.propsVal.textSourceNameTime     = obs.obs_data_get_string(settings, "textSourceNameTime")
 	ctx.propsVal.textSourceNameDuration = obs.obs_data_get_string(settings, "textSourceNameDuration")
-end
-
---  update a single target text source
-local function updateTextSource (name, text)
-    local source = obs.obs_get_source_by_name(name)
-    if source ~= nil then
-        local settings = obs.obs_source_get_settings(source)
-        obs.obs_data_set_string(settings, "text", text)
-        obs.obs_source_update(source, settings)
-        obs.obs_data_release(settings)
-        obs.obs_source_release(source)
-    end
-end
-
---  update targets for scenes
-local function updateTextSourcesScene ()
-    --  determine current scene in preview and update text source
-	local previewSceneSource = obs.obs_frontend_get_current_preview_scene()
-	local previewSceneName   = obs.obs_source_get_name(previewSceneSource)
-    updateTextSource(ctx.propsVal.textSourceNamePreview, previewSceneName)
-	obs.obs_source_release(previewSceneSource)
-
-    --  determine current scene in program and update text source
-	local programSceneSource = obs.obs_frontend_get_current_scene()
-	local programSceneName   = obs.obs_source_get_name(programSceneSource)
-    updateTextSource(ctx.propsVal.textSourceNameProgram, programSceneName)
-	obs.obs_source_release(programSceneSource)
-end
-
---  update targets for time
-local function updateTextSourcesTime ()
-    --  determine current wallclock-time and update text source
-	local time = os.date("%H:%M:%S")
-    updateTextSource(ctx.propsVal.textSourceNameTime, time)
-
-    --  determine current duration-time and update text source
-    if ctx.timerPaused then
-        ctx.timerPausedSecs = ctx.timerPausedSecs + 1
-    end
-    local timerEnd = obs.os_gettime_ns()
-    local duration = math.floor((timerEnd - ctx.timerStart) / (1000 * 1000 * 1000)) - ctx.timerPausedSecs
-    local hour = math.floor(duration / (60 * 60))
-    duration = math.fmod(duration, 60 * 60)
-    local min = math.floor(duration / 60)
-    duration = math.fmod(duration, 60)
-    local sec = duration
-    local text = string.format("%02d:%02d:%02d", hour, min, sec)
-    if ctx.timerPaused then
-        text = text .. " *"
-    end
-    updateTextSource(ctx.propsVal.textSourceNameDuration, text)
 end
 
 --  script hook: on script load

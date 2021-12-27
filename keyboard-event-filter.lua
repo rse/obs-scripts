@@ -6,50 +6,6 @@
 **
 --]]
 
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Keyboard Event Filter</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Define a Keyboard Event filter for sources. This is intended
-        to map OBS Studio global hotkeys onto keyboard events for
-        Browser Source sources.</b>
-        </p>
-
-        <p>
-        Use it by performing two steps:
-        <ol>
-            <li style="margin-bottom: 6px;">
-                <b>DEFINE:</b> Add the "Keyboard Event" pseudo-effect
-                filter to your Browser Source based source. Give it
-                a globally unique name in case you are using this
-                filter more than once inside your particular OBS
-                Studio scene/source configuration (because the name
-                is used as the prefix for the hotkey). Then define
-                the available keyboard events in its properies. The
-                syntax for defining keyboard events is "<tt>a</tt>",
-                "<tt>SHIFT+a</tt>", "<tt>CTRL+a</tt>", "<tt>ALT+a</tt>"
-                and "<tt>CMD+a</tt>".
-            </li>
-            <li>
-                <b>MAP</b>: Map global OBS hotkeys onto
-                the source keyboard events under <b>File
-                &rarr; Settings &rarr; Hotkeys</b>. You can
-                find the keyboard events under the name
-                "<i>FilterName</i> <i>KeyboardEvent</i>".
-                For example, <tt>Keyboard Event CTRL+a</tt>.
-            </li>
-        </ol>
-        </p>
-    ]]
-end
-
 --  global OBS API
 local obs  = obslua
 local bit  = require("bit")
@@ -411,4 +367,48 @@ end
 
 --  register the filter
 obs.obs_register_source(info)
+
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Keyboard Event Filter</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Define a Keyboard Event filter for sources. This is intended
+        to map OBS Studio global hotkeys onto keyboard events for
+        Browser Source sources.</b>
+        </p>
+
+        <p>
+        Use it by performing two steps:
+        <ol>
+            <li style="margin-bottom: 6px;">
+                <b>DEFINE:</b> Add the "Keyboard Event" pseudo-effect
+                filter to your Browser Source based source. Give it
+                a globally unique name in case you are using this
+                filter more than once inside your particular OBS
+                Studio scene/source configuration (because the name
+                is used as the prefix for the hotkey). Then define
+                the available keyboard events in its properies. The
+                syntax for defining keyboard events is "<tt>a</tt>",
+                "<tt>SHIFT+a</tt>", "<tt>CTRL+a</tt>", "<tt>ALT+a</tt>"
+                and "<tt>CMD+a</tt>".
+            </li>
+            <li>
+                <b>MAP</b>: Map global OBS hotkeys onto
+                the source keyboard events under <b>File
+                &rarr; Settings &rarr; Hotkeys</b>. You can
+                find the keyboard events under the name
+                "<i>FilterName</i> <i>KeyboardEvent</i>".
+                For example, <tt>Keyboard Event CTRL+a</tt>.
+            </li>
+        </ol>
+        </p>
+    ]]
+end
 

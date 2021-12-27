@@ -6,21 +6,6 @@
 **
 --]]
 
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Refresh Browser Sources</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Refresh all <i>Browser Source</i> sources.</b>
-    ]]
-end
-
 --  global OBS API
 local obs = obslua
 
@@ -58,6 +43,21 @@ local function refreshBrowsers ()
         end
     end
     obs.source_list_release(sources)
+end
+
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Refresh Browser Sources</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Refresh all <i>Browser Source</i> sources.</b>
+    ]]
 end
 
 --  script hook: define UI properties

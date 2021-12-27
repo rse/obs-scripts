@@ -15,8 +15,8 @@ std = {
 		"script_properties",
 		"script_defaults",
 		"script_update",
-		"script_unload",
 		"script_load",
+		"script_unload",
 		"script_save",
 		"script_tick"
     }

@@ -6,41 +6,6 @@
 **
 --]]
 
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Clone Template Scene</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Clone an entire source scene (template), by creating a target
-        scene (clone) and copying all corresponding sources, including
-        their filters, transforms, etc.</b>
-
-        <p>
-        <u>Notice:</u> The same kind of cloning <i>cannot</i> to be achieved
-        manually, as the scene <i>Duplicate</i> and the source
-        <i>Copy</i> functions create references for many source types
-        only and especially do not clone applied transforms. The only
-        alternative is the tedious process of creating a new scene,
-        step-by-step copying and pasting all sources and then also
-        step-by-step copying and pasting all source transforms.
-
-        <p>
-        <u>Prerequisite:</u> This script assumes that the source
-        scene is named <tt>XXX</tt> (e.g. <tt>Template-01</tt>),
-        all of its sources are named <tt>XXX-ZZZ</tt> (e.g.
-        <tt>Template-01-Placeholder-02</tt>), the target scene is
-        named <tt>YYY</tt> (e.g. <tt>Scene-03</tt>) and all of
-        its sources are consequently named <tt>YYY-ZZZ</tt> (e.g.
-        <tt>Scene-03-Placeholder-02</tt>).
-    ]]
-end
-
 --  global OBS API
 local obs = obslua
 
@@ -248,6 +213,41 @@ local function updateSourceScenes ()
         ctx.propsValSrc = n
     end
     obs.source_list_release(scenes)
+end
+
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Clone Template Scene</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Clone an entire source scene (template), by creating a target
+        scene (clone) and copying all corresponding sources, including
+        their filters, transforms, etc.</b>
+
+        <p>
+        <u>Notice:</u> The same kind of cloning <i>cannot</i> to be achieved
+        manually, as the scene <i>Duplicate</i> and the source
+        <i>Copy</i> functions create references for many source types
+        only and especially do not clone applied transforms. The only
+        alternative is the tedious process of creating a new scene,
+        step-by-step copying and pasting all sources and then also
+        step-by-step copying and pasting all source transforms.
+
+        <p>
+        <u>Prerequisite:</u> This script assumes that the source
+        scene is named <tt>XXX</tt> (e.g. <tt>Template-01</tt>),
+        all of its sources are named <tt>XXX-ZZZ</tt> (e.g.
+        <tt>Template-01-Placeholder-02</tt>), the target scene is
+        named <tt>YYY</tt> (e.g. <tt>Scene-03</tt>) and all of
+        its sources are consequently named <tt>YYY-ZZZ</tt> (e.g.
+        <tt>Scene-03-Placeholder-02</tt>).
+    ]]
 end
 
 --  script hook: define UI properties

@@ -22,6 +22,5 @@ std = {
     }
 }
 
-unused = false
 unused_args = false
 

@@ -37,7 +37,7 @@ local function findSceneByName (name)
     if scenes == nil then
         return nil
     end
-    for i, scene in ipairs(scenes) do
+    for _, scene in ipairs(scenes) do
         local n = obs.obs_source_get_name(scene)
         if n == name then
             obs.source_list_release(scenes)
@@ -82,7 +82,7 @@ local function doClone ()
     --  iterate over all source scene (template) sources
     local sourceSceneBase = obs.obs_scene_from_source(sourceScene)
     local sourceItems = obs.obs_scene_enum_items(sourceSceneBase)
-    for i, sourceItem in ipairs(sourceItems) do
+    for _, sourceItem in ipairs(sourceItems) do
         local sourceSrc = obs.obs_sceneitem_get_source(sourceItem)
 
         --  determine source and destination name
@@ -207,7 +207,7 @@ local function updateSourceScenes ()
         return
     end
     ctx.propsValSrc = nil
-    for i, scene in ipairs(scenes) do
+    for _, scene in ipairs(scenes) do
         local n = obs.obs_source_get_name(scene)
         obs.obs_property_list_add_string(ctx.propsDefSrc, n, n)
         ctx.propsValSrc = n

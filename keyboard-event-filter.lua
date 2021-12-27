@@ -32,7 +32,7 @@ info.get_defaults = function (settings)
 end
 
 --  hook: create filter context
-info.create = function (settings, source)
+info.create = function (_settings, source)
     --  create new filter context object
     local filter = {}
     filter.source = source
@@ -310,7 +310,7 @@ info.load = function (filter, settings)
     keyboard_event_reconfigure(filter, settings)
 
     --  load hotkeys from settings
-    for kb, id in pairs(filter.cfg.kb2id) do
+    for _, id in pairs(filter.cfg.kb2id) do
         local a = obs.obs_data_get_array(settings, id)
         obs.obs_hotkey_load(filter.cfg.id2hk[id], a)
         obs.obs_data_array_release(a)
@@ -323,7 +323,7 @@ info.save = function (filter, settings)
     keyboard_event_reconfigure(filter, settings)
 
     --  save hotkeys to settings
-    for kb, id in pairs(filter.cfg.kb2id) do
+    for _, id in pairs(filter.cfg.kb2id) do
         local a = obs.obs_hotkey_save(filter.cfg.id2hk[id])
         obs.obs_data_set_array(settings, id, a)
         obs.obs_data_array_release(a)
@@ -331,7 +331,7 @@ info.save = function (filter, settings)
 end
 
 --  hook: provide filter properties
-info.get_properties = function (filter)
+info.get_properties = function (_filter)
     --  create properties
     local props = obs.obs_properties_create()
     obs.obs_properties_add_editable_list(props,

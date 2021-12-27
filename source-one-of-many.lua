@@ -40,7 +40,7 @@ local function cb_item_visible (calldata)
     local scene = obs.obs_sceneitem_get_scene(item)
     local sceneitems = obs.obs_scene_enum_items(scene)
     local found_other_visible = false
-    for i, sceneitem in ipairs(sceneitems) do
+    for _, sceneitem in ipairs(sceneitems) do
         local itemsource = obs.obs_sceneitem_get_source(sceneitem)
         local name = obs.obs_source_get_name(itemsource)
 

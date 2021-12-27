@@ -1,4 +1,4 @@
 
 all:
-	luacheck *.lua
+	@luacheck *.lua
 

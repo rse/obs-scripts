@@ -25,8 +25,8 @@ local function startExecOnce()
     local index = ctx.startExecPath:match("^.*()\\")
     local execDir = ctx.startExecPath:sub(1, index)
     local execName = ctx.startExecPath:sub(index + 1, ctx.startExecPath:len())
-    local cmd = "start \"\" /D \"" .. execDir .. "\" \"" .. execName .. "\""
-    obs.script_log(obs.LOG_INFO, "executing command \"" .. cmd .. "\"")
+    local cmd = string.format("start \"\" /D \"%s\" \"%s\"", execDir, execName)
+    obs.script_log(obs.LOG_INFO, string.format("executing command \"%s\"", cmd))
     os.execute(cmd)
 end
 
@@ -38,8 +38,8 @@ local function stopExecOnce()
     local index = ctx.stopExecPath:match("^.*()\\")
     local execDir = ctx.stopExecPath:sub(1, index)
     local execName = ctx.stopExecPath:sub(index + 1, ctx.stopExecPath:len())
-    local cmd = "start \"\" /D \"" .. execDir .. "\" \"" .. execName .. "\""
-    obs.script_log(obs.LOG_INFO, "executing command \"" .. cmd .. "\"")
+    local cmd = string.format("start \"\" /D \"%s\" \"%s\"", execDir, execName)
+    obs.script_log(obs.LOG_INFO, string.format("executing command \"%s\"", cmd))
     os.execute(cmd)
 end
 
@@ -106,8 +106,8 @@ end
 function script_unload ()
     --  close the start executable again
     if ctx.startExecClose then
-        local cmd = "taskkill /t /f /im \"" .. ctx.startExecName .. "\""
-        obs.script_log(obs.LOG_INFO, "executing command \"" .. cmd .. "\"")
+        local cmd = string.format("taskkill /t /f /im \"%s\"", ctx.startExecName)
+        obs.script_log(obs.LOG_INFO, string.format("executing command \"%s\"", cmd))
         os.execute(cmd)
     end
 

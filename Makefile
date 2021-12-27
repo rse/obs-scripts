@@ -1,0 +1,4 @@
+
+all:
+	luacheck *.lua
+

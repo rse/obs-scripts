@@ -12,16 +12,16 @@ Studio](https://obsproject.com/).
 
 The individual scripts are:
 
+- [auto-execute-commands.lua](auto-execute-commands.lua):<br/>
+  Automatically execute commands when OBS Studio starts up and/or
+  shuts down. This is usually used for initializing cameras or
+  performing similar external start/stop tasks.
+
 - [clone-template-scene.lua](clone-template-scene.lua):<br/>
   Clone an entire source scene (template), by creating a target scene
   (clone) and copying all corresponding sources, including their
   filters, transforms, etc. This is usually used for creating scenes,
   based on the same set of template scenes, during event preparation.
-
-- [refresh-browser-sources.lua](refresh-browser-sources.lua):<br/>
-  Refresh all <i>Browser Source</i> sources. This is usally used to
-  refresh Browser Source based Head-Up-Display (HUD), Lower Thirds or
-  Banner widgets during event preparation.
 
 - [keyboard-event-filter.lua](keyboard-event-filter.lua):<br/>
   Define a Keyboard Event filter for sources. This is intended to
@@ -38,6 +38,11 @@ The individual scripts are:
   to the involved people. This is usually used for broadcasting central
   information during event production.
 
+- [refresh-browser-sources.lua](refresh-browser-sources.lua):<br/>
+  Refresh all <i>Browser Source</i> sources. This is usally used to
+  refresh Browser Source based Head-Up-Display (HUD), Lower Thirds or
+  Banner widgets during event preparation.
+
 - [source-one-of-many.lua](source-one-of-many.lua):<br/>
   Toggle between one of many sources visible in a scene/group. If
   a source is made visible in a scene/group, all other sources are
@@ -46,11 +51,6 @@ The individual scripts are:
   to be made non-visible. So, at each time, only one source is visible
   within the scene/group. This is usually used for switching between
   multiple cameras within a dedicated scene/group of cameras.
-
-- [auto-execute-commands.lua](auto-execute-commands.lua):<br/>
-  Automatically execute commands when OBS Studio starts up and/or
-  shuts down. This is usually used for initializing cameras or
-  performing similar external start/stop tasks.
 
 Installation
 ------------

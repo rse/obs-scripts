@@ -6,6 +6,33 @@
 **
 --]]
 
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Production Information</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Render production information into corresponding text sources.</b>
+
+        <p>
+        This is a small OBS Studio script for rendering the current
+        scene name visible in the Preview and Program channels, the
+        current wallclock time and the current on-air duration time into
+        pre-defined corresponding Text/GDI+ text sources. These text
+        sources are usually part of a (hidden) scene which is either
+        just part of a locally shown OBS Studio Multiview or Projector
+        or is broadcasted via an attached "Dedicated NDI Output" filter
+        to foreign monitors. In all cases, the intention is to globally
+        show current production information to the involved people
+        during a production session.
+    ]]
+end
+
 --  global OBS API
 local obs = obslua
 
@@ -33,33 +60,6 @@ local ctx = {
     hotkeyIdPause       = obs.OBS_INVALID_HOTKEY_ID,
     hotkeyIdReset       = obs.OBS_INVALID_HOTKEY_ID
 }
-
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Production Information</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Render production information into corresponding text sources.</b>
-
-        <p>
-        This is a small OBS Studio script for rendering the current
-        scene name visible in the Preview and Program channels, the
-        current wallclock time and the current on-air duration time into
-        pre-defined corresponding Text/GDI+ text sources. These text
-        sources are usually part of a (hidden) scene which is either
-        just part of a locally shown OBS Studio Multiview or Projector
-        or is broadcasted via an attached "Dedicated NDI Output" filter
-        to foreign monitors. In all cases, the intention is to globally
-        show current production information to the involved people
-        during a production session.
-    ]]
-end
 
 --  helper function: update text source properties
 local function updateTextSources ()

@@ -6,14 +6,6 @@
 **
 --]]
 
---  global OBS API
-local obs = obslua
-
---  global context information
-local ctx = {
-    hotkey = obs.OBS_INVALID_HOTKEY_ID
-}
-
 --  script hook: description displayed on script window
 function script_description ()
     return [[
@@ -28,6 +20,14 @@ function script_description ()
         <b>Refresh all <i>Browser Source</i> sources.</b>
     ]]
 end
+
+--  global OBS API
+local obs = obslua
+
+--  global context information
+local ctx = {
+    hotkey = obs.OBS_INVALID_HOTKEY_ID
+}
 
 --  helper function: refresh all browser sources
 local function refreshBrowsers ()

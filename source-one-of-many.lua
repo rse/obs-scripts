@@ -6,6 +6,26 @@
 **
 --]]
 
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Source One-of-Many</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Toggle between one of many sources visible in a scene/group.
+        If a source is made visible in a scene/group, all other sources
+        are automatically made non-visible. The currently already
+        visible source is made visible immediately again, if it is
+        accidentally requested to be made non-visible. So, at each time,
+        only one source is visible within the scene/group.</b>
+    ]]
+end
+
 --  global OBS API
 local obs = obslua
 
@@ -93,26 +113,6 @@ local function cb_source_load (calldata)
         end
     end
     obs.obs_data_array_release(sourceNames)
-end
-
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Source One-of-Many</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Toggle between one of many sources visible in a scene/group.
-        If a source is made visible in a scene/group, all other sources
-        are automatically made non-visible. The currently already
-        visible source is made visible immediately again, if it is
-        accidentally requested to be made non-visible. So, at each time,
-        only one source is visible within the scene/group.</b>
-    ]]
 end
 
 --  script hook: define UI properties

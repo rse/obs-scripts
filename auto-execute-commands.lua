@@ -6,6 +6,21 @@
 **
 --]]
 
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Automatically Execute Commands</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Automatically execute commands when OBS Studio starts up and/or shuts down.</b>
+    ]]
+end
+
 --  global OBS API
 local obs = obslua
 
@@ -41,21 +56,6 @@ local function stopExecOnce()
     local cmd = "start \"\" /D \"" .. execDir .. "\" \"" .. execName .. "\""
     obs.script_log(obs.LOG_INFO, "executing command \"" .. cmd .. "\"")
     os.execute(cmd)
-end
-
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Automatically Execute Commands</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Automatically execute commands when OBS Studio starts up and/or shuts down.</b>
-    ]]
 end
 
 --  script hook: define UI properties

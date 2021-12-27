@@ -6,10 +6,6 @@
 **
 --]]
 
---  global OBS API
-local obs  = obslua
-local bit  = require("bit")
-
 --  script hook: description displayed on script window
 function script_description ()
     return [[
@@ -53,6 +49,10 @@ function script_description ()
         </p>
     ]]
 end
+
+--  global OBS API
+local obs  = obslua
+local bit  = require("bit")
 
 --  create obs_source_info structure
 local info = {}

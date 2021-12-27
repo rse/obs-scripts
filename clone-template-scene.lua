@@ -18,126 +18,6 @@ local ctx = {
     propsValSrc = nil,  -- property values (first source scene)
 }
 
---  script hook: description displayed on script window
-function script_description ()
-    return [[
-        <h2>Clone Template Scene</h2>
-
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
-        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
-        Distributed under <a style="color: #ffffff; text-decoration: none;"
-        href="https://spdx.org/licenses/MIT.html">MIT license</a>
-
-        <p>
-        <b>Clone an entire source scene (template), by creating a target
-        scene (clone) and copying all corresponding sources, including
-        their filters, transforms, etc.</b>
-
-        <p>
-        <u>Notice:</u> The same kind of cloning <i>cannot</i> to be achieved
-        manually, as the scene <i>Duplicate</i> and the source
-        <i>Copy</i> functions create references for many source types
-        only and especially do not clone applied transforms. The only
-        alternative is the tedious process of creating a new scene,
-        step-by-step copying and pasting all sources and then also
-        step-by-step copying and pasting all source transforms.
-
-        <p>
-        <u>Prerequisite:</u> This script assumes that the source
-        scene is named <tt>XXX</tt> (e.g. <tt>Template-01</tt>),
-        all of its sources are named <tt>XXX-ZZZ</tt> (e.g.
-        <tt>Template-01-Placeholder-02</tt>), the target scene is
-        named <tt>YYY</tt> (e.g. <tt>Scene-03</tt>) and all of
-        its sources are consequently named <tt>YYY-ZZZ</tt> (e.g.
-        <tt>Scene-03-Placeholder-02</tt>).
-    ]]
-end
-
---  helper function: update source scenes property
-function updateSourceScenes ()
-    if ctx.propsDefSrc == nil then
-        return
-    end
-    obs.obs_property_list_clear(ctx.propsDefSrc)
-    local scenes = obs.obs_frontend_get_scenes()
-    if scenes == nil then
-        return
-    end
-    ctx.propsValSrc = nil
-    for i, scene in ipairs(scenes) do
-        local n = obs.obs_source_get_name(scene)
-        obs.obs_property_list_add_string(ctx.propsDefSrc, n, n)
-        ctx.propsValSrc = n
-    end
-    obs.source_list_release(scenes)
-end
-
---  script hook: define UI properties
-function script_properties ()
-    --  create new properties
-    ctx.propsDef = obs.obs_properties_create()
-
-    --  create source scene list
-    ctx.propsDefSrc = obs.obs_properties_add_list(ctx.propsDef,
-        "sourceScene", "Source Scene (Template):",
-        obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
-    updateSourceScenes()
-
-    --  create target scene field
-    obs.obs_properties_add_text(ctx.propsDef, "targetScene",
-        "Target Scene (Clone):", obs.OBS_TEXT_DEFAULT)
-
-    --  create clone button
-    obs.obs_properties_add_button(ctx.propsDef, "clone",
-        "Clone Template Scene", doClone)
-
-    --  create status field (read-only)
-    local status = obs.obs_properties_add_text(ctx.propsDef, "statusMessage",
-        "Status Message:", obs.OBS_TEXT_MULTILINE)
-    obs.obs_property_set_enabled(status, false)
-
-    --  apply values to definitions
-    obs.obs_properties_apply_settings(ctx.propsDef, ctx.propsSet)
-    return ctx.propsDef
-end
-
---  script hook: define property defaults
-function script_defaults (settings)
-    --  update our source scene list (for propsValSrc below)
-    updateSourceScenes()
-
-    --  provide default values
-    obs.obs_data_set_default_string(settings, "sourceScene",   ctx.propsValSrc)
-    obs.obs_data_set_default_string(settings, "targetScene",   "Scene-01")
-    obs.obs_data_set_default_string(settings, "statusMessage", "")
-end
-
---  script hook: property values were updated
-function script_update (settings)
-    --  remember settings
-    ctx.propsSet = settings
-
-    --  fetch property values
-    ctx.propsVal.sourceScene   = obs.obs_data_get_string(settings, "sourceScene")
-    ctx.propsVal.targetScene   = obs.obs_data_get_string(settings, "targetScene")
-    ctx.propsVal.statusMessage = obs.obs_data_get_string(settings, "statusMessage")
-end
-
---  react on script load
-function script_load (settings)
-    --  clear status message
-    obs.obs_data_set_string(settings, "statusMessage", "")
-
-    --  react on scene list changes
-    obs.obs_frontend_add_event_callback(function (event)
-        if event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
-            --  update our source scene list
-            updateSourceScenes()
-        end
-        return true
-    end)
-end
-
 --  helper function: set status message
 local function statusMessage (type, message)
     if type == "error" then
@@ -177,7 +57,7 @@ local function stringReplace (str, from, to)
 end
 
 --  called for the actual cloning action
-function doClone ()
+local function doClone ()
     --  find source scene (template)
     local sourceScene = findSceneByName(ctx.propsVal.sourceScene)
     if sourceScene == nil then
@@ -314,5 +194,125 @@ function doClone ()
     statusMessage("info", string.format("scene \"%s\" successfully cloned to \"%s\".",
         ctx.propsVal.sourceScene, ctx.propsVal.targetScene))
     return true
+end
+
+--  script hook: description displayed on script window
+function script_description ()
+    return [[
+        <h2>Clone Template Scene</h2>
+
+        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
+        Distributed under <a style="color: #ffffff; text-decoration: none;"
+        href="https://spdx.org/licenses/MIT.html">MIT license</a>
+
+        <p>
+        <b>Clone an entire source scene (template), by creating a target
+        scene (clone) and copying all corresponding sources, including
+        their filters, transforms, etc.</b>
+
+        <p>
+        <u>Notice:</u> The same kind of cloning <i>cannot</i> to be achieved
+        manually, as the scene <i>Duplicate</i> and the source
+        <i>Copy</i> functions create references for many source types
+        only and especially do not clone applied transforms. The only
+        alternative is the tedious process of creating a new scene,
+        step-by-step copying and pasting all sources and then also
+        step-by-step copying and pasting all source transforms.
+
+        <p>
+        <u>Prerequisite:</u> This script assumes that the source
+        scene is named <tt>XXX</tt> (e.g. <tt>Template-01</tt>),
+        all of its sources are named <tt>XXX-ZZZ</tt> (e.g.
+        <tt>Template-01-Placeholder-02</tt>), the target scene is
+        named <tt>YYY</tt> (e.g. <tt>Scene-03</tt>) and all of
+        its sources are consequently named <tt>YYY-ZZZ</tt> (e.g.
+        <tt>Scene-03-Placeholder-02</tt>).
+    ]]
+end
+
+--  helper function: update source scenes property
+local function updateSourceScenes ()
+    if ctx.propsDefSrc == nil then
+        return
+    end
+    obs.obs_property_list_clear(ctx.propsDefSrc)
+    local scenes = obs.obs_frontend_get_scenes()
+    if scenes == nil then
+        return
+    end
+    ctx.propsValSrc = nil
+    for i, scene in ipairs(scenes) do
+        local n = obs.obs_source_get_name(scene)
+        obs.obs_property_list_add_string(ctx.propsDefSrc, n, n)
+        ctx.propsValSrc = n
+    end
+    obs.source_list_release(scenes)
+end
+
+--  script hook: define UI properties
+function script_properties ()
+    --  create new properties
+    ctx.propsDef = obs.obs_properties_create()
+
+    --  create source scene list
+    ctx.propsDefSrc = obs.obs_properties_add_list(ctx.propsDef,
+        "sourceScene", "Source Scene (Template):",
+        obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
+    updateSourceScenes()
+
+    --  create target scene field
+    obs.obs_properties_add_text(ctx.propsDef, "targetScene",
+        "Target Scene (Clone):", obs.OBS_TEXT_DEFAULT)
+
+    --  create clone button
+    obs.obs_properties_add_button(ctx.propsDef, "clone",
+        "Clone Template Scene", doClone)
+
+    --  create status field (read-only)
+    local status = obs.obs_properties_add_text(ctx.propsDef, "statusMessage",
+        "Status Message:", obs.OBS_TEXT_MULTILINE)
+    obs.obs_property_set_enabled(status, false)
+
+    --  apply values to definitions
+    obs.obs_properties_apply_settings(ctx.propsDef, ctx.propsSet)
+    return ctx.propsDef
+end
+
+--  script hook: define property defaults
+function script_defaults (settings)
+    --  update our source scene list (for propsValSrc below)
+    updateSourceScenes()
+
+    --  provide default values
+    obs.obs_data_set_default_string(settings, "sourceScene",   ctx.propsValSrc)
+    obs.obs_data_set_default_string(settings, "targetScene",   "Scene-01")
+    obs.obs_data_set_default_string(settings, "statusMessage", "")
+end
+
+--  script hook: property values were updated
+function script_update (settings)
+    --  remember settings
+    ctx.propsSet = settings
+
+    --  fetch property values
+    ctx.propsVal.sourceScene   = obs.obs_data_get_string(settings, "sourceScene")
+    ctx.propsVal.targetScene   = obs.obs_data_get_string(settings, "targetScene")
+    ctx.propsVal.statusMessage = obs.obs_data_get_string(settings, "statusMessage")
+end
+
+--  react on script load
+function script_load (settings)
+    --  clear status message
+    obs.obs_data_set_string(settings, "statusMessage", "")
+
+    --  react on scene list changes
+    obs.obs_frontend_add_event_callback(function (event)
+        if event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
+            --  update our source scene list
+            updateSourceScenes()
+        end
+        return true
+    end)
 end
 

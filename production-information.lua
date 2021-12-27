@@ -62,7 +62,7 @@ function script_description ()
 end
 
 --  helper function: update text source properties
-function updateTextSources ()
+local function updateTextSources ()
     --  clear already initialized property lists
     if ctx.propsDefSrcPreview ~= nil then
         obs.obs_property_list_clear(ctx.propsDefSrcPreview)
@@ -87,7 +87,7 @@ function updateTextSources ()
 	local sources = obs.obs_enum_sources()
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
-			source_id = obs.obs_source_get_unversioned_id(source)
+			local source_id = obs.obs_source_get_unversioned_id(source)
             if source_id == "text_gdiplus" or source_id == "text_ft2_source" then
                 --  ...and fetch their source names
                 local name = obs.obs_source_get_name(source)
@@ -134,12 +134,12 @@ function updateTextSources ()
 end
 
 --  helper function for duration pause
-function durationPause ()
+local function durationPause ()
     ctx.timerPaused = not ctx.timerPaused
 end
 
 --  helper function for duration reset
-function durationReset ()
+local function durationReset ()
     ctx.timerStart      = obs.os_gettime_ns()
     ctx.timerPausedSecs = 0
 end
@@ -202,7 +202,7 @@ function script_update (settings)
 end
 
 --  update a single target text source
-function updateTextSource (name, text)
+local function updateTextSource (name, text)
     local source = obs.obs_get_source_by_name(name)
     if source ~= nil then
         local settings = obs.obs_source_get_settings(source)
@@ -214,7 +214,7 @@ function updateTextSource (name, text)
 end
 
 --  update targets for scenes
-function updateTextSourcesScene ()
+local function updateTextSourcesScene ()
     --  determine current scene in preview and update text source
 	local previewSceneSource = obs.obs_frontend_get_current_preview_scene()
 	local previewSceneName   = obs.obs_source_get_name(previewSceneSource)
@@ -229,7 +229,7 @@ function updateTextSourcesScene ()
 end
 
 --  update targets for time
-function updateTextSourcesTime ()
+local function updateTextSourcesTime ()
     --  determine current wallclock-time and update text source
 	local time = os.date("%H:%M:%S")
     updateTextSource(ctx.propsVal.textSourceNameTime, time)

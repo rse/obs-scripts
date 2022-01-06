@@ -7,6 +7,7 @@ std = {
         "table",
         "obslua",
         "ipairs",
+        "tonumber",
         "pairs",
         "math"
     },

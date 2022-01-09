@@ -1,7 +1,7 @@
 --[[
 **
 **  auto-execute-commands.lua -- OBS Studio Lua Script for Automatically Executing Commands
-**  Copyright (c) 2021 Dr. Ralf S. Engelschall <rse@engelschall.com>
+**  Copyright (c) 2021-2022 Dr. Ralf S. Engelschall <rse@engelschall.com>
 **  Distributed under MIT license <https://spdx.org/licenses/MIT.html>
 **
 --]]

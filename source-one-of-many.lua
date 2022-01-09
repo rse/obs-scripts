@@ -1,7 +1,7 @@
 --[[
 **
 **  source-one-of-many.lua -- OBS Studio Lua Script for Toggling One of Many Sources
-**  Copyright (c) 2021 Dr. Ralf S. Engelschall <rse@engelschall.com>
+**  Copyright (c) 2021-2022 Dr. Ralf S. Engelschall <rse@engelschall.com>
 **  Distributed under MIT license <https://spdx.org/licenses/MIT.html>
 **
 --]]

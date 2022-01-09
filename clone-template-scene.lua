@@ -1,7 +1,7 @@
 --[[
 **
 **  clone-template-scene.lua -- OBS Studio Lua Script for Cloning Template Scene
-**  Copyright (c) 2021 Dr. Ralf S. Engelschall <rse@engelschall.com>
+**  Copyright (c) 2021-2022 Dr. Ralf S. Engelschall <rse@engelschall.com>
 **  Distributed under MIT license <https://spdx.org/licenses/MIT.html>
 **
 --]]

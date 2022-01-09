@@ -1,7 +1,7 @@
 --[[
 **
 **  keyboard-event-filter.lua -- OBS Studio Lua Script for Keyboard Event Filter
-**  Copyright (c) 2021 Dr. Ralf S. Engelschall <rse@engelschall.com>
+**  Copyright (c) 2021-2022 Dr. Ralf S. Engelschall <rse@engelschall.com>
 **  Distributed under MIT license <https://spdx.org/licenses/MIT.html>
 **
 --]]

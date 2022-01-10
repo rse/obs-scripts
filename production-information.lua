@@ -25,7 +25,7 @@ local ctx = {
     propsValSrcDuration = nil,   -- property values (source scene of duration)
 
     -- duration timer
-	timerStart          = 0,     -- timer start (in nannoseconds)
+	timerStart          = 0,     -- timer start (in nanoseconds)
 	timerPaused         = false, -- timer paused flag
 	timerPausedSecs     = 0,     -- timer paused time (in seconds)
 

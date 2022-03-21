@@ -43,10 +43,11 @@ function script_description ()
         href="https://spdx.org/licenses/MIT.html">MIT license</a>
 
         <p>
-        <b>Refresh all <i>Browser Source</i> sources. Either press the
+        Refresh all <i>Browser Source</i> sources. Either press the
         button below or assign a hotkey under <i>Settings / Hotkeys</i>
-        to the global action <i>Refresh all browsers</i>. An alternative would
-        be to assign the hotkey to all scene actions named "Refresh page of current page".</b>
+        to the global action <i>Refresh all browsers</i>. An alternative
+        would be to assign the hotkey to all scene actions named
+        "Refresh page of current page".
     ]]
 end
 

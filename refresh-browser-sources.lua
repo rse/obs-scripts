@@ -21,24 +21,11 @@ local function refreshBrowsers ()
         for _, source in ipairs(sources) do
             local source_id = obs.obs_source_get_unversioned_id(source)
             if source_id == "browser_source" then
-                --  fetch settings
-                local settings = obs.obs_source_get_settings(source)
-
-                --  touch CSS settings to force a refresh
-                --  (technically we append/remove a trailing whitespace only)
-                local css = obs.obs_data_get_string(settings, "css")
-                if string.match(css, " $") then
-                    css = string.gsub(css, " $", "")
-                else
-                    css = css .. " "
-                end
-                obs.obs_data_set_string(settings, "css", css)
-
-                --  update sources
-                obs.obs_source_update(source, settings)
-
-                --  release settings
-                obs.obs_data_release(settings)
+                --  trigger the refresh functionality through its "RefreshNoCache" button property
+                local properties = obs.obs_source_properties(source)
+                local property = obs.obs_properties_get(properties, "refreshnocache")
+                obs.obs_property_button_clicked(property, source)
+                obs.obs_properties_destroy(properties)
             end
         end
     end
@@ -50,13 +37,16 @@ function script_description ()
     return [[
         <h2>Refresh Browser Sources</h2>
 
-        Copyright &copy; 2021 <a style="color: #ffffff; text-decoration: none;"
+        Copyright &copy; 2021-2022 <a style="color: #ffffff; text-decoration: none;"
         href="http://engelschall.com">Dr. Ralf S. Engelschall</a><br/>
         Distributed under <a style="color: #ffffff; text-decoration: none;"
         href="https://spdx.org/licenses/MIT.html">MIT license</a>
 
         <p>
-        <b>Refresh all <i>Browser Source</i> sources.</b>
+        <b>Refresh all <i>Browser Source</i> sources. Either press the
+        button below or assign a hotkey under <i>Settings / Hotkeys</i>
+        to the global action <i>Refresh all browsers</i>. An alternative would
+        be to assign the hotkey to all scene actions named "Refresh page of current page".</b>
     ]]
 end
 

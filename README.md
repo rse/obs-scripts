@@ -52,6 +52,13 @@ The individual scripts are:
   within the scene/group. This is usually used for switching between
   multiple cameras within a dedicated scene/group of cameras.
 
+- [enforce-current-scenes.lua](enforce-current-scenes.lua):<br/>
+  Enforce certain scenes to be always in preview/program. This is
+  usually used when multiple NDI-exported dashboard scenes exists, which
+  never should be manually selected, and particular scenes should be in
+  preview/program to ensure they are output with the Virtual Camera or
+  with a Decklink card.
+
 Installation
 ------------
 
@@ -64,7 +71,7 @@ Installation
 License
 -------
 
-Copyright &copy; 2021-2022 Dr. Ralf S. Engelschall (http://engelschall.com/)
+Copyright &copy; 2021-2024 Dr. Ralf S. Engelschall (http://engelschall.com/)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

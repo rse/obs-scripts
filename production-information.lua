@@ -50,7 +50,7 @@ local function updateTextSources ()
         obs.obs_property_list_clear(ctx.propsDefSrcDuration)
     end
 
-    --  clear all selected propety values
+    --  clear all selected property values
     ctx.propsValSrcPreview  = nil
     ctx.propsValSrcProgram  = nil
     ctx.propsValSrcTime     = nil

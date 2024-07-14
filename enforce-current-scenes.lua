@@ -97,12 +97,8 @@ local function enforceScenes (mode)
         local delay = ctx.propsVal.numberDelayAutomatic
         if react then
             if delay == 0 then
-                obs.script_log(obs.LOG_INFO,
-                    string.format("[%s] enforce scenes: perform direct operation", os.date("%Y-%m-%d %H:%M:%S")))
                 enforceScenes("timeout")
             elseif ctx.enforceTimer == 0 then
-                obs.script_log(obs.LOG_INFO,
-                    string.format("[%s] enforce scenes: start delay timer", os.date("%Y-%m-%d %H:%M:%S")))
                 ctx.enforceTimer = delay
             end
         end

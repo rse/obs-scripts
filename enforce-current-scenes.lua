@@ -113,20 +113,6 @@ local function enforceScenes (mode)
         end
     end
 
-    --  enforce preview (studio mode only)
-    if obs.obs_frontend_preview_program_mode_active() and ctx.propsVal.textSourceNamePreview ~= "none" then
-        local previewSceneSourceCurrent = obs.obs_frontend_get_current_preview_scene()
-        local previewSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNamePreview)
-        if previewSceneSourceCurrent ~= previewSceneSourceTarget then
-            acquire()
-            obs.script_log(obs.LOG_INFO,
-                string.format("[%s] switching PREVIEW to scene \"%s\"",
-                os.date("%Y-%m-%d %H:%M:%S"), ctx.propsVal.textSourceNamePreview))
-            obs.obs_frontend_set_current_preview_scene(previewSceneSourceTarget)
-        end
-        obs.obs_source_release(previewSceneSourceCurrent)
-    end
-
     --  enforce program
     if ctx.propsVal.textSourceNameProgram ~= "none" then
         local programSceneSourceCurrent = obs.obs_frontend_get_current_scene()
@@ -139,6 +125,22 @@ local function enforceScenes (mode)
             obs.obs_frontend_set_current_scene(programSceneSourceTarget)
         end
         obs.obs_source_release(programSceneSourceCurrent)
+        obs.obs_source_release(programSceneSourceTarget)
+    end
+
+    --  enforce preview (studio mode only)
+    if obs.obs_frontend_preview_program_mode_active() and ctx.propsVal.textSourceNamePreview ~= "none" then
+        local previewSceneSourceCurrent = obs.obs_frontend_get_current_preview_scene()
+        local previewSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNamePreview)
+        if previewSceneSourceCurrent ~= previewSceneSourceTarget then
+            acquire()
+            obs.script_log(obs.LOG_INFO,
+                string.format("[%s] switching PREVIEW to scene \"%s\"",
+                os.date("%Y-%m-%d %H:%M:%S"), ctx.propsVal.textSourceNamePreview))
+            obs.obs_frontend_set_current_preview_scene(previewSceneSourceTarget)
+        end
+        obs.obs_source_release(previewSceneSourceCurrent)
+        obs.obs_source_release(previewSceneSourceTarget)
     end
 
     --  handle mutex

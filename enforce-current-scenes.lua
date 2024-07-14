@@ -116,13 +116,14 @@ local function enforceScenes (mode)
     --  enforce program
     if ctx.propsVal.textSourceNameProgram ~= "none" then
         local programSceneSourceCurrent = obs.obs_frontend_get_current_scene()
-        local programSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNameProgram)
-        if programSceneSourceCurrent ~= programSceneSourceTarget then
+        local programSceneNameCurrent   = obs.obs_source_get_name(programSceneSourceCurrent)
+        local programSceneNameTarget    = ctx.propsVal.textSourceNameProgram
+        local programSceneSourceTarget  = obs.obs_get_source_by_name(programSceneNameTarget)
+        if programSceneNameCurrent ~= programSceneNameTarget then
             acquire()
             obs.script_log(obs.LOG_INFO,
                 string.format("[%s] switching PROGRAM from \"%s\" to scene \"%s\"",
-                os.date("%Y-%m-%d %H:%M:%S"), obs.obs_source_get_name(programSceneSourceCurrent),
-                ctx.propsVal.textSourceNameProgram))
+                os.date("%Y-%m-%d %H:%M:%S"), programSceneNameCurrent, programSceneNameTarget))
             obs.obs_frontend_set_current_scene(programSceneSourceTarget)
         end
         obs.obs_source_release(programSceneSourceCurrent)
@@ -132,13 +133,14 @@ local function enforceScenes (mode)
     --  enforce preview (studio mode only)
     if obs.obs_frontend_preview_program_mode_active() and ctx.propsVal.textSourceNamePreview ~= "none" then
         local previewSceneSourceCurrent = obs.obs_frontend_get_current_preview_scene()
-        local previewSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNamePreview)
-        if previewSceneSourceCurrent ~= previewSceneSourceTarget then
+        local previewSceneNameCurrent   = obs.obs_source_get_name(previewSceneSourceCurrent)
+        local previewSceneNameTarget    = ctx.propsVal.textSourceNamePreview
+        local previewSceneSourceTarget  = obs.obs_get_source_by_name(previewSceneNameTarget)
+        if previewSceneNameCurrent ~= previewSceneNameTarget then
             acquire()
             obs.script_log(obs.LOG_INFO,
                 string.format("[%s] switching PREVIEW from \"%s\" to scene \"%s\"",
-                os.date("%Y-%m-%d %H:%M:%S"), obs.obs_source_get_name(previewSceneSourceCurrent),
-                ctx.propsVal.textSourceNamePreview))
+                os.date("%Y-%m-%d %H:%M:%S"), previewSceneNameCurrent, previewSceneNameTarget))
             obs.obs_frontend_set_current_preview_scene(previewSceneSourceTarget)
         end
         obs.obs_source_release(previewSceneSourceCurrent)

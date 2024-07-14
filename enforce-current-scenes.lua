@@ -120,8 +120,9 @@ local function enforceScenes (mode)
         if programSceneSourceCurrent ~= programSceneSourceTarget then
             acquire()
             obs.script_log(obs.LOG_INFO,
-                string.format("[%s] switching PROGRAM to scene \"%s\"",
-                os.date("%Y-%m-%d %H:%M:%S"), ctx.propsVal.textSourceNameProgram))
+                string.format("[%s] switching PROGRAM from \"%s\" to scene \"%s\"",
+                os.date("%Y-%m-%d %H:%M:%S"), obs.obs_source_get_name(programSceneSourceCurrent),
+                ctx.propsVal.textSourceNameProgram))
             obs.obs_frontend_set_current_scene(programSceneSourceTarget)
         end
         obs.obs_source_release(programSceneSourceCurrent)
@@ -135,8 +136,9 @@ local function enforceScenes (mode)
         if previewSceneSourceCurrent ~= previewSceneSourceTarget then
             acquire()
             obs.script_log(obs.LOG_INFO,
-                string.format("[%s] switching PREVIEW to scene \"%s\"",
-                os.date("%Y-%m-%d %H:%M:%S"), ctx.propsVal.textSourceNamePreview))
+                string.format("[%s] switching PREVIEW from \"%s\" to scene \"%s\"",
+                os.date("%Y-%m-%d %H:%M:%S"), obs.obs_source_get_name(previewSceneSourceCurrent),
+                ctx.propsVal.textSourceNamePreview))
             obs.obs_frontend_set_current_preview_scene(previewSceneSourceTarget)
         end
         obs.obs_source_release(previewSceneSourceCurrent)

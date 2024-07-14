@@ -17,14 +17,16 @@ local ctx = {
     propsDefSrcProgram  = nil,   -- property definition (source scene of program)
     propsSet            = nil,   -- property settings (model)
     propsVal            = {},    -- property values
-    propsValSrcPreview  = nil,   -- property values (source scene of preview)
-    propsValSrcProgram  = nil,   -- property values (source scene of program)
 
     --  hotkey registration
     hotkeyIdEnforce     = obs.OBS_INVALID_HOTKEY_ID,
 
     --  flag for recursion prevention
-    changingScenes      = false
+    changingScenes      = false,
+    changingTimer       = 0,
+
+    --  timer for automatic enforcement
+    enforceTimer        = 0
 }
 
 --  helper function: update text source properties
@@ -38,10 +40,6 @@ local function updateTextSources ()
         obs.obs_property_list_clear(ctx.propsDefSrcProgram)
         obs.obs_property_list_add_string(ctx.propsDefSrcProgram, "none", "none")
     end
-
-    --  clear all selected property values
-    ctx.propsValSrcPreview = "none"
-    ctx.propsValSrcProgram = "none"
 
     --  iterate over all sources...
 	local scenes = obs.obs_frontend_get_scenes()
@@ -66,33 +64,135 @@ local function updateTextSources ()
 	obs.source_list_release(scenes)
 end
 
---  enforce certain scenes
-local function enforceScenes ()
-    if not ctx.changingScenes then
-        --  enforce preview
-        if ctx.propsVal.textSourceNamePreview ~= "none" then
-            local previewSceneSourceCurrent = obs.obs_frontend_get_current_preview_scene()
-            local previewSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNamePreview)
-            if previewSceneSourceCurrent ~= previewSceneSourceTarget then
-                ctx.changingScenes = true
-                obs.obs_frontend_set_current_preview_scene(previewSceneSourceTarget)
-                ctx.changingScenes = false
-            end
-            obs.obs_source_release(previewSceneSourceCurrent)
-        end
-
-        --  enforce program
-        if ctx.propsVal.textSourceNameProgram ~= "none" then
-            local programSceneSourceCurrent = obs.obs_frontend_get_current_scene()
-            local programSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNameProgram)
-            if programSceneSourceCurrent ~= programSceneSourceTarget then
-                ctx.changingScenes = true
-                obs.obs_frontend_set_current_scene(programSceneSourceTarget)
-                ctx.changingScenes = false
-            end
-            obs.obs_source_release(programSceneSourceCurrent)
+--  tick every 10ms for changing timer
+local function changingTimerTick ()
+    if ctx.changingTimer > 0 then
+        ctx.changingTimer = ctx.changingTimer - 10
+        if ctx.changingTimer <= 0 then
+            ctx.changingTimer = 0
+            obs.timer_remove(changingTimerTick)
+            obs.script_log(obs.LOG_INFO,
+                string.format("[%s] mutex: release", os.date("%Y-%m-%d %H:%M:%S")))
+            ctx.changingScenes = false
+            obs.obs_frontend_add_event_callback(ctx.onFrontendEvent)
         end
     end
+end
+
+--  enforce certain scenes
+local function enforceScenes (mode)
+    obs.script_log(obs.LOG_INFO,
+        string.format("[%s] enforce scenes: mode=%s", os.date("%Y-%m-%d %H:%M:%S"), mode))
+
+    --  short-circuit processing in case of mutex
+    if ctx.changingScenes then
+        obs.script_log(obs.LOG_INFO,
+            string.format("[%s] enforce scenes: mutex prevents operation", os.date("%Y-%m-%d %H:%M:%S")))
+        return
+    end
+
+    --  optional delay on automatic enforcement
+    if mode == "automatic" then
+        local react = ctx.propsVal.flagReactAutomatic
+        local delay = ctx.propsVal.numberDelayAutomatic
+        if react then
+            if delay == 0 then
+                obs.script_log(obs.LOG_INFO,
+                    string.format("[%s] enforce scenes: perform direct operation", os.date("%Y-%m-%d %H:%M:%S")))
+                enforceScenes("timeout")
+            elseif ctx.enforceTimer == 0 then
+                obs.script_log(obs.LOG_INFO,
+                    string.format("[%s] enforce scenes: start delay timer", os.date("%Y-%m-%d %H:%M:%S")))
+                ctx.enforceTimer = delay
+            end
+        end
+        return
+    end
+
+    --  mutex initialization
+    local mutex = false
+    local function acquire ()
+        if not mutex then
+            mutex = true
+            ctx.changingScenes = true
+            obs.obs_frontend_remove_event_callback(ctx.onFrontendEvent)
+            obs.script_log(obs.LOG_INFO,
+                string.format("[%s] mutex: acquire", os.date("%Y-%m-%d %H:%M:%S")))
+        end
+    end
+
+    --  enforce preview (studio mode only)
+    if obs.obs_frontend_preview_program_mode_active() and ctx.propsVal.textSourceNamePreview ~= "none" then
+        local previewSceneSourceCurrent = obs.obs_frontend_get_current_preview_scene()
+        local previewSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNamePreview)
+        if previewSceneSourceCurrent ~= previewSceneSourceTarget then
+            acquire()
+            obs.script_log(obs.LOG_INFO,
+                string.format("[%s] switching PREVIEW to scene \"%s\"",
+                os.date("%Y-%m-%d %H:%M:%S"), ctx.propsVal.textSourceNamePreview))
+            obs.obs_frontend_set_current_preview_scene(previewSceneSourceTarget)
+        end
+        obs.obs_source_release(previewSceneSourceCurrent)
+    end
+
+    --  enforce program
+    if ctx.propsVal.textSourceNameProgram ~= "none" then
+        local programSceneSourceCurrent = obs.obs_frontend_get_current_scene()
+        local programSceneSourceTarget  = obs.obs_get_source_by_name(ctx.propsVal.textSourceNameProgram)
+        if programSceneSourceCurrent ~= programSceneSourceTarget then
+            acquire()
+            obs.script_log(obs.LOG_INFO,
+                string.format("[%s] switching PROGRAM to scene \"%s\"",
+                os.date("%Y-%m-%d %H:%M:%S"), ctx.propsVal.textSourceNameProgram))
+            obs.obs_frontend_set_current_scene(programSceneSourceTarget)
+        end
+        obs.obs_source_release(programSceneSourceCurrent)
+    end
+
+    --  handle mutex
+    if mutex then
+        ctx.changingTimer = 250
+        obs.timer_add(changingTimerTick, 10)
+    end
+end
+
+--  tick every 100ms for enforce timer
+local function enforceTimerTick ()
+    if ctx.enforceTimer > 0 then
+        ctx.enforceTimer = ctx.enforceTimer - 100
+        if ctx.enforceTimer <= 0 then
+            ctx.enforceTimer = 0
+            enforceScenes("timeout")
+        end
+    end
+end
+
+--  react on OBS Studio frontend events
+ctx.onFrontendEvent = function (event)
+    if event == obs.OBS_FRONTEND_EVENT_FINISHED_LOADING then
+        enforceScenes("automatic")
+    elseif event == obs.OBS_FRONTEND_EVENT_SCENE_CHANGED then
+        enforceScenes("automatic")
+    elseif event == obs.OBS_FRONTEND_EVENT_PREVIEW_SCENE_CHANGED then
+        enforceScenes("automatic")
+    elseif event == obs.OBS_FRONTEND_EVENT_STUDIO_MODE_ENABLED then
+        obs.script_log(obs.LOG_INFO,
+            string.format("[%s] detected: studio mode enabled", os.date("%Y-%m-%d %H:%M:%S")))
+        if ctx.propsDefSrcPreview ~= nil then
+            obs.obs_property_set_enabled(ctx.propsDefSrcPreview, true)
+        end
+        enforceScenes("automatic")
+    elseif event == obs.OBS_FRONTEND_EVENT_STUDIO_MODE_DISABLED then
+        obs.script_log(obs.LOG_INFO,
+            string.format("[%s] detected: studio mode disabled", os.date("%Y-%m-%d %H:%M:%S")))
+        if ctx.propsDefSrcPreview ~= nil then
+            obs.obs_property_set_enabled(ctx.propsDefSrcPreview, false)
+        end
+        enforceScenes("automatic")
+    elseif event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
+        updateTextSources()
+    end
+    return true
 end
 
 --  script hook: description displayed on script window
@@ -106,11 +206,8 @@ function script_description ()
         href="https://spdx.org/licenses/MIT.html">MIT license</a>
 
         <p>
-        <b>Enforce certain scences to be in preview/program.</b>
-
-        <p>
-        This is a small OBS Studio script for enforcing the current
-        scenes in preview and program.
+        This is a small OBS Studio Lua script for enforcing certain scenes
+        to be always in preview and program.
     ]]
 end
 
@@ -119,18 +216,31 @@ function script_properties ()
     --  create new properties
     local props = obs.obs_properties_create()
 
-    --  create selection fields
+    --  create scene selection fields
     ctx.propsDefSrcPreview = obs.obs_properties_add_list(props,
-        "textSourceNamePreview", "Preview Scene",
+        "textSourceNamePreview", "Preview Scene (Studio Mode only)",
         obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+    if obs.obs_frontend_preview_program_mode_active() then
+        obs.obs_property_set_enabled(ctx.propsDefSrcPreview, true)
+    else
+        obs.obs_property_set_enabled(ctx.propsDefSrcPreview, false)
+    end
     ctx.propsDefSrcProgram = obs.obs_properties_add_list(props,
         "textSourceNameProgram", "Program Scene",
         obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
     updateTextSources()
 
-    --  create buttons
-	obs.obs_properties_add_button(props, "buttonEnforce", "Enforce Scenes", function ()
-        enforceScenes()
+    --  create boolean flag
+    ctx.propsDefFlagReactAutomatic = obs.obs_properties_add_bool(props,
+        "flagReactAutomatic", "Automatically enforce on any scene changes")
+
+    --  create text field
+    ctx.propsDefDelayAutomatic = obs.obs_properties_add_int(props,
+        "numberDelayAutomatic", "Automatic enforcement delay (ms)", 0, 60 * 1000, 100)
+
+    --  create button
+	obs.obs_properties_add_button(props, "buttonEnforce", "Enforce Scenes Once", function ()
+        enforceScenes("manual")
 	    return true
     end)
 
@@ -139,31 +249,41 @@ end
 
 --  script hook: define property defaults
 function script_defaults (settings)
-    --  update our text source list (for propsValSrcXXX below)
-    updateTextSources()
+    obs.script_log(obs.LOG_INFO, string.format("[%s] initialize configuration", os.date("%Y-%m-%d %H:%M:%S")))
 
     --  provide default values
-    obs.obs_data_set_default_string(settings, "textSourceNamePreview", ctx.propsValSrcPreview)
-    obs.obs_data_set_default_string(settings, "textSourceNameProgram", ctx.propsValSrcProgram)
+    obs.obs_data_set_default_string(settings, "textSourceNamePreview", "none")
+    obs.obs_data_set_default_string(settings, "textSourceNameProgram", "none")
+    obs.obs_data_set_default_bool(settings,   "flagReactAutomatic",    false)
+    obs.obs_data_set_default_int(settings,    "numberDelayAutomatic",  10 * 1000)
 end
 
 --  script hook: update state from UI properties
 function script_update (settings)
-    --  remember settings
-    ctx.propsSet = settings
-
     --  fetch property values
 	ctx.propsVal.textSourceNamePreview  = obs.obs_data_get_string(settings, "textSourceNamePreview")
 	ctx.propsVal.textSourceNameProgram  = obs.obs_data_get_string(settings, "textSourceNameProgram")
+	ctx.propsVal.flagReactAutomatic     = obs.obs_data_get_bool(settings,   "flagReactAutomatic")
+	ctx.propsVal.numberDelayAutomatic   = obs.obs_data_get_int(settings,    "numberDelayAutomatic")
+	local automatic = "no"
+    if ctx.propsVal.flagReactAutomatic then
+	    automatic = "yes"
+        enforceScenes("automatic")
+    end
+    obs.script_log(obs.LOG_INFO,
+        string.format("[%s] update configuration: preview=%s program=%s automatic=%s delay=%d",
+        os.date("%Y-%m-%d %H:%M:%S"),
+	    ctx.propsVal.textSourceNamePreview, ctx.propsVal.textSourceNameProgram,
+        automatic, ctx.propsVal.numberDelayAutomatic))
 end
 
 --  script hook: on script load
 function script_load (settings)
     --  define hotkeys
 	ctx.hotkeyIdEnforce = obs.obs_hotkey_register_frontend("enforce_scenes",
-        "Enforce Scenes", function (pressed)
+        "Enforce Scenes Once", function (pressed)
         if pressed then
-            enforceScenes()
+            enforceScenes("manual")
         end
     end)
 	local hotkeyArrayEnforce = obs.obs_data_get_array(settings, "enforce_scenes_array")
@@ -171,21 +291,16 @@ function script_load (settings)
 	obs.obs_data_array_release(hotkeyArrayEnforce)
 
     --  hook into the UI events
-    obs.obs_frontend_add_event_callback(function (event)
-        if event == obs.OBS_FRONTEND_EVENT_FINISHED_LOADING then
-            enforceScenes()
-        elseif event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
-            updateTextSources()
-        elseif event == obs.OBS_FRONTEND_EVENT_SCENE_CHANGED then
-            enforceScenes()
-        elseif event == obs.OBS_FRONTEND_EVENT_PREVIEW_SCENE_CHANGED then
-            enforceScenes()
-        end
-        return true
-    end)
+    obs.obs_frontend_add_event_callback(ctx.onFrontendEvent)
 
-    --  start timer
-    obs.timer_add(enforceScenes, 10 * 1000)
+    --  start enforce timer ticker
+    obs.timer_add(enforceTimerTick, 100)
+end
+
+--  script hook: on script unlod
+function script_unload (settings)
+    --  stop enforce timer ticker
+    obs.timer_remove(enforceTimerTick)
 end
 
 --  script hook: on script save state

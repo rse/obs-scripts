@@ -71,8 +71,6 @@ local function changingTimerTick ()
         if ctx.changingTimer <= 0 then
             ctx.changingTimer = 0
             obs.timer_remove(changingTimerTick)
-            obs.script_log(obs.LOG_INFO,
-                string.format("[%s] mutex: release", os.date("%Y-%m-%d %H:%M:%S")))
             ctx.changingScenes = false
             obs.obs_frontend_add_event_callback(ctx.onFrontendEvent)
         end
@@ -112,8 +110,6 @@ local function enforceScenes (mode)
             mutex = true
             ctx.changingScenes = true
             obs.obs_frontend_remove_event_callback(ctx.onFrontendEvent)
-            obs.script_log(obs.LOG_INFO,
-                string.format("[%s] mutex: acquire", os.date("%Y-%m-%d %H:%M:%S")))
         end
     end
 
@@ -172,16 +168,12 @@ ctx.onFrontendEvent = function (event)
     elseif event == obs.OBS_FRONTEND_EVENT_PREVIEW_SCENE_CHANGED then
         enforceScenes("automatic")
     elseif event == obs.OBS_FRONTEND_EVENT_STUDIO_MODE_ENABLED then
-        obs.script_log(obs.LOG_INFO,
-            string.format("[%s] detected: studio mode enabled", os.date("%Y-%m-%d %H:%M:%S")))
         if ctx.propsDefSrcPreview ~= nil then
             obs.obs_property_set_enabled(ctx.propsDefSrcPreview, true)
             obs.obs_properties_apply_settings(ctx.propsDef, ctx.propsSet)
         end
         enforceScenes("automatic")
     elseif event == obs.OBS_FRONTEND_EVENT_STUDIO_MODE_DISABLED then
-        obs.script_log(obs.LOG_INFO,
-            string.format("[%s] detected: studio mode disabled", os.date("%Y-%m-%d %H:%M:%S")))
         if ctx.propsDefSrcPreview ~= nil then
             obs.obs_property_set_enabled(ctx.propsDefSrcPreview, false)
             obs.obs_properties_apply_settings(ctx.propsDef, ctx.propsSet)

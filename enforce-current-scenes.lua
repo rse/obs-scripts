@@ -42,9 +42,9 @@ local function updateTextSources ()
     end
 
     --  iterate over all sources...
-	local scenes = obs.obs_frontend_get_scenes()
-	if scenes ~= nil then
-		for _, source in ipairs(scenes) do
+    local scenes = obs.obs_frontend_get_scenes()
+    if scenes ~= nil then
+        for _, source in ipairs(scenes) do
             if obs.obs_source_get_type(source) == obs.OBS_SOURCE_TYPE_SCENE then
                 --  ...and fetch their source names
                 local name = obs.obs_source_get_name(source)
@@ -58,10 +58,10 @@ local function updateTextSources ()
                 if ctx.propsDefSrcProgram ~= nil then
                     obs.obs_property_list_add_string(ctx.propsDefSrcProgram, name, name)
                 end
-			end
-		end
-	end
-	obs.source_list_release(scenes)
+            end
+        end
+    end
+    obs.source_list_release(scenes)
 end
 
 --  tick every 10ms for changing timer
@@ -180,6 +180,7 @@ ctx.onFrontendEvent = function (event)
             string.format("[%s] detected: studio mode enabled", os.date("%Y-%m-%d %H:%M:%S")))
         if ctx.propsDefSrcPreview ~= nil then
             obs.obs_property_set_enabled(ctx.propsDefSrcPreview, true)
+            obs.obs_properties_apply_settings(ctx.propsDef, ctx.propsSet)
         end
         enforceScenes("automatic")
     elseif event == obs.OBS_FRONTEND_EVENT_STUDIO_MODE_DISABLED then
@@ -187,6 +188,7 @@ ctx.onFrontendEvent = function (event)
             string.format("[%s] detected: studio mode disabled", os.date("%Y-%m-%d %H:%M:%S")))
         if ctx.propsDefSrcPreview ~= nil then
             obs.obs_property_set_enabled(ctx.propsDefSrcPreview, false)
+            obs.obs_properties_apply_settings(ctx.propsDef, ctx.propsSet)
         end
         enforceScenes("automatic")
     elseif event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
@@ -215,6 +217,7 @@ end
 function script_properties ()
     --  create new properties
     local props = obs.obs_properties_create()
+    ctx.propsDef = props
 
     --  create scene selection fields
     ctx.propsDefSrcPreview = obs.obs_properties_add_list(props,
@@ -239,11 +242,12 @@ function script_properties ()
         "numberDelayAutomatic", "Automatic enforcement delay (ms)", 0, 60 * 1000, 100)
 
     --  create button
-	obs.obs_properties_add_button(props, "buttonEnforce", "Enforce Scenes Once", function ()
+    obs.obs_properties_add_button(props, "buttonEnforce", "Enforce Scenes Once", function ()
         enforceScenes("manual")
-	    return true
+        return true
     end)
 
+    obs.obs_properties_apply_settings(ctx.propsDef, ctx.propsSet)
     return props
 end
 
@@ -260,35 +264,40 @@ end
 
 --  script hook: update state from UI properties
 function script_update (settings)
+    --  remember settings
+    ctx.propsSet = settings
+
     --  fetch property values
-	ctx.propsVal.textSourceNamePreview  = obs.obs_data_get_string(settings, "textSourceNamePreview")
-	ctx.propsVal.textSourceNameProgram  = obs.obs_data_get_string(settings, "textSourceNameProgram")
-	ctx.propsVal.flagReactAutomatic     = obs.obs_data_get_bool(settings,   "flagReactAutomatic")
-	ctx.propsVal.numberDelayAutomatic   = obs.obs_data_get_int(settings,    "numberDelayAutomatic")
-	local automatic = "no"
+    ctx.propsVal.textSourceNamePreview  = obs.obs_data_get_string(settings, "textSourceNamePreview")
+    ctx.propsVal.textSourceNameProgram  = obs.obs_data_get_string(settings, "textSourceNameProgram")
+    ctx.propsVal.flagReactAutomatic     = obs.obs_data_get_bool(settings,   "flagReactAutomatic")
+    ctx.propsVal.numberDelayAutomatic   = obs.obs_data_get_int(settings,    "numberDelayAutomatic")
+
+    --  log the current configuration
+    local automatic = "no"
     if ctx.propsVal.flagReactAutomatic then
-	    automatic = "yes"
+        automatic = "yes"
         enforceScenes("automatic")
     end
     obs.script_log(obs.LOG_INFO,
         string.format("[%s] update configuration: preview=%s program=%s automatic=%s delay=%d",
         os.date("%Y-%m-%d %H:%M:%S"),
-	    ctx.propsVal.textSourceNamePreview, ctx.propsVal.textSourceNameProgram,
+        ctx.propsVal.textSourceNamePreview, ctx.propsVal.textSourceNameProgram,
         automatic, ctx.propsVal.numberDelayAutomatic))
 end
 
 --  script hook: on script load
 function script_load (settings)
     --  define hotkeys
-	ctx.hotkeyIdEnforce = obs.obs_hotkey_register_frontend("enforce_scenes",
+    ctx.hotkeyIdEnforce = obs.obs_hotkey_register_frontend("enforce_scenes",
         "Enforce Scenes Once", function (pressed)
         if pressed then
             enforceScenes("manual")
         end
     end)
-	local hotkeyArrayEnforce = obs.obs_data_get_array(settings, "enforce_scenes_array")
-	obs.obs_hotkey_load(ctx.hotkeyIdEnforce, hotkeyArrayEnforce)
-	obs.obs_data_array_release(hotkeyArrayEnforce)
+    local hotkeyArrayEnforce = obs.obs_data_get_array(settings, "enforce_scenes_array")
+    obs.obs_hotkey_load(ctx.hotkeyIdEnforce, hotkeyArrayEnforce)
+    obs.obs_data_array_release(hotkeyArrayEnforce)
 
     --  hook into the UI events
     obs.obs_frontend_add_event_callback(ctx.onFrontendEvent)
@@ -306,8 +315,8 @@ end
 --  script hook: on script save state
 function script_save(settings)
     --  save hotkeys
-	local hotkeyArrayEnforce = obs.obs_hotkey_save(ctx.hotkeyIdEnforce)
-	obs.obs_data_set_array(settings, "enforce_scenes_array", hotkeyArrayEnforce)
-	obs.obs_data_array_release(hotkeyArrayEnforce)
+    local hotkeyArrayEnforce = obs.obs_hotkey_save(ctx.hotkeyIdEnforce)
+    obs.obs_data_set_array(settings, "enforce_scenes_array", hotkeyArrayEnforce)
+    obs.obs_data_array_release(hotkeyArrayEnforce)
 end
 
